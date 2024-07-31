@@ -1,7 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import AuthModal from './AuthModal';
 
 const Header = () => {
+  const { user, logout } = useSupabaseAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <header className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
@@ -16,10 +29,26 @@ const Header = () => {
           </ul>
         </nav>
         <div className="space-x-2">
-          <Button variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">Login</Button>
-          <Button className="bg-green-500 hover:bg-green-600">Register</Button>
+          {user ? (
+            <>
+              <span>Welcome, {user.email}</span>
+              <Button onClick={handleLogout} variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={() => setIsAuthModalOpen(true)} variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">
+                Login
+              </Button>
+              <Button onClick={() => setIsAuthModalOpen(true)} className="bg-green-500 hover:bg-green-600">
+                Register
+              </Button>
+            </>
+          )}
         </div>
       </div>
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
     </header>
   );
 };
