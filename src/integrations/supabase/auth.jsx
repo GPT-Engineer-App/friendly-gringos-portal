@@ -62,9 +62,10 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   };
 
   const updateProfile = async (updates) => {
-    const { error } = await supabase.auth.updateUser(updates);
+    const { data, error } = await supabase.auth.updateUser(updates);
     if (error) throw error;
-    setUser({ ...user, ...updates });
+    setUser(data.user);
+    return data.user;
   };
 
   return (
