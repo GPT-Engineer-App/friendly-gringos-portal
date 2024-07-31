@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import AuthModal from './AuthModal';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const { user, logout } = useSupabaseAuth();
@@ -21,7 +29,7 @@ const Header = () => {
         <div className="text-2xl font-bold">5Gringos</div>
         <nav>
           <ul className="flex space-x-4">
-            <li><a href="#home" className="hover:text-gray-300">Home</a></li>
+            <li><Link to="/" className="hover:text-gray-300">Home</Link></li>
             <li><a href="#games" className="hover:text-gray-300">Games</a></li>
             <li><a href="#promotions" className="hover:text-gray-300">Promotions</a></li>
             <li><a href="#vip" className="hover:text-gray-300">VIP</a></li>
@@ -30,12 +38,22 @@ const Header = () => {
         </nav>
         <div className="space-x-2">
           {user ? (
-            <>
-              <span>Welcome, {user.email}</span>
-              <Button onClick={handleLogout} variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">
-                Logout
-              </Button>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer">
+                  <AvatarImage src={user.user_metadata?.avatar_url} alt={user.user_metadata?.name} />
+                  <AvatarFallback>{user.user_metadata?.name?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Link to="/profile" className="w-full">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Button onClick={() => setIsAuthModalOpen(true)} variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">
