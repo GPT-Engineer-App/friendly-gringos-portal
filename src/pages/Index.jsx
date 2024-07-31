@@ -1,12 +1,22 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React from 'react';
+import Header from '../components/Header';
+import MainBanner from '../components/MainBanner';
+import GameSection from '../components/GameSection';
+import PromotionsSection from '../components/PromotionsSection';
+import VIPSection from '../components/VIPSection';
+import Footer from '../components/Footer';
 
 const Index = () => {
   return (
-    <div className="flex justify-center items-center">
-      <div className="text-center">
-        <h1 className="text-3xl">Your Blank Canvas</h1>
-        <p>Chat with the agent to start making edits.</p>
-      </div>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow">
+        <MainBanner />
+        <GameSection />
+        <PromotionsSection />
+        <VIPSection />
+      </main>
+      <Footer />
     </div>
   );
 };
