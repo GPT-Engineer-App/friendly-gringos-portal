@@ -9,48 +9,66 @@ const SupabaseAuthContext = createContext();
 export const SupabaseAuthProvider = ({ children }) => {
   return (
     <SupabaseProvider>
-      <SupabaseAuthProviderInner>
-        {children}
-      </SupabaseAuthProviderInner>
+      <SupabaseAuthProviderInner>{children}</SupabaseAuthProviderInner>
     </SupabaseProvider>
   );
-}
+};
 
 export const SupabaseAuthProviderInner = ({ children }) => {
-  const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const getSession = async () => {
+    const getUser = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
       setLoading(false);
     };
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
+      setUser(session?.user ?? null);
       queryClient.invalidateQueries('user');
     });
 
-    getSession();
+    getUser();
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 
+  const login = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  };
+
+  const register = async (email, password) => {
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+  };
+
   const logout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    setUser(null);
     queryClient.invalidateQueries('user');
-    setLoading(false);
+  };
+
+  const resetPassword = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  };
+
+  const updateProfile = async (updates) => {
+    const { error } = await supabase.auth.updateUser(updates);
+    if (error) throw error;
+    setUser({ ...user, ...updates });
   };
 
   return (
-    <SupabaseAuthContext.Provider value={{ session, loading, logout }}>
+    <SupabaseAuthContext.Provider value={{ user, loading, login, register, logout, resetPassword, updateProfile }}>
       {children}
     </SupabaseAuthContext.Provider>
   );
