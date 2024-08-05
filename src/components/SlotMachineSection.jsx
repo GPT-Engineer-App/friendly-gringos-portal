@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SlotMachineModal from './SlotMachineModal';
+import SlotMachine from './SlotMachine';
 
 const SlotMachineSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,17 +68,18 @@ const SlotMachineSection = () => {
               <div className="p-4">
                 <h3 className="font-semibold text-center truncate">{slot.name}</h3>
                 <p className="text-sm text-gray-500 text-center mt-1">{slot.provider}</p>
-                <Button className="w-full mt-2" size="sm">Play Now</Button>
+                <Button className="w-full mt-2" size="sm" onClick={() => setSelectedSlot(slot)}>Play Now</Button>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <SlotMachineModal 
-        slot={selectedSlot} 
-        isOpen={!!selectedSlot} 
-        onClose={() => setSelectedSlot(null)} 
-      />
+      {selectedSlot && (
+        <SlotMachine
+          slot={selectedSlot}
+          onClose={() => setSelectedSlot(null)}
+        />
+      )}
     </section>
   );
 };
