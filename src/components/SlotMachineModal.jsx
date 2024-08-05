@@ -10,13 +10,13 @@ const SlotMachineModal = ({ slot, isOpen, onClose }) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{slot.name}</DialogTitle>
-          <DialogDescription>{slot.category} Slot</DialogDescription>
+          <DialogDescription>{slot.provider}</DialogDescription>
         </DialogHeader>
         <div className="mt-4">
           <img src={slot.image} alt={slot.name} className="w-full h-48 object-cover rounded-md" />
-          <p className="mt-4">Spin the reels of {slot.name}! This exciting slot machine offers great entertainment and the chance to win big.</p>
+          <p className="mt-4">Experience the thrill of {slot.name}! This exciting slot machine from {slot.provider} offers great entertainment and the chance to win big.</p>
           <div className="mt-6 flex justify-between">
-            <Button onClick={onClose}>Close</Button>
+            <Button onClick={onClose} variant="outline">Close</Button>
             <Button className="bg-green-500 hover:bg-green-600">Play Now</Button>
           </div>
         </div>
