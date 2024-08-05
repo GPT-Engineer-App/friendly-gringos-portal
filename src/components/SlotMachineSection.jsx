@@ -9,18 +9,18 @@ const SlotMachineSection = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const slots = [
-    { name: 'Book of Dead', theme: 'ancient', image: 'https://example.com/book-of-dead.jpg', provider: 'Play\'n GO' },
-    { name: 'Starburst', theme: 'space', image: 'https://example.com/starburst.jpg', provider: 'NetEnt' },
-    { name: 'Gonzo\'s Quest', theme: 'adventure', image: 'https://example.com/gonzos-quest.jpg', provider: 'NetEnt' },
-    { name: 'Mega Moolah', theme: 'safari', image: 'https://example.com/mega-moolah.jpg', provider: 'Microgaming' },
-    { name: 'Reactoonz', theme: 'alien', image: 'https://example.com/reactoonz.jpg', provider: 'Play\'n GO' },
-    { name: 'Dead or Alive 2', theme: 'western', image: 'https://example.com/dead-or-alive-2.jpg', provider: 'NetEnt' },
-    { name: 'Sweet Bonanza', theme: 'candy', image: 'https://example.com/sweet-bonanza.jpg', provider: 'Pragmatic Play' },
-    { name: 'Wolf Gold', theme: 'wildlife', image: 'https://example.com/wolf-gold.jpg', provider: 'Pragmatic Play' },
-    { name: 'Immortal Romance', theme: 'vampire', image: 'https://example.com/immortal-romance.jpg', provider: 'Microgaming' },
-    { name: 'Jammin\' Jars', theme: 'fruit', image: 'https://example.com/jammin-jars.jpg', provider: 'Push Gaming' },
-    { name: 'Bonanza', theme: 'mining', image: 'https://example.com/bonanza.jpg', provider: 'Big Time Gaming' },
-    { name: 'Fire Joker', theme: 'classic', image: 'https://example.com/fire-joker.jpg', provider: 'Play\'n GO' },
+    { name: 'Book of Dead', theme: 'ancient', image: '/images/slots/book-of-dead.jpg', provider: 'Play\'n GO' },
+    { name: 'Starburst', theme: 'space', image: '/images/slots/starburst.jpg', provider: 'NetEnt' },
+    { name: 'Gonzo\'s Quest', theme: 'adventure', image: '/images/slots/gonzos-quest.jpg', provider: 'NetEnt' },
+    { name: 'Mega Moolah', theme: 'safari', image: '/images/slots/mega-moolah.jpg', provider: 'Microgaming' },
+    { name: 'Reactoonz', theme: 'alien', image: '/images/slots/reactoonz.jpg', provider: 'Play\'n GO' },
+    { name: 'Dead or Alive 2', theme: 'western', image: '/images/slots/dead-or-alive-2.jpg', provider: 'NetEnt' },
+    { name: 'Sweet Bonanza', theme: 'candy', image: '/images/slots/sweet-bonanza.jpg', provider: 'Pragmatic Play' },
+    { name: 'Wolf Gold', theme: 'wildlife', image: '/images/slots/wolf-gold.jpg', provider: 'Pragmatic Play' },
+    { name: 'Immortal Romance', theme: 'vampire', image: '/images/slots/immortal-romance.jpg', provider: 'Microgaming' },
+    { name: 'Jammin\' Jars', theme: 'fruit', image: '/images/slots/jammin-jars.jpg', provider: 'Push Gaming' },
+    { name: 'Bonanza', theme: 'mining', image: '/images/slots/bonanza.jpg', provider: 'Big Time Gaming' },
+    { name: 'Fire Joker', theme: 'classic', image: '/images/slots/fire-joker.jpg', provider: 'Play\'n GO' },
   ];
 
   const filteredSlots = slots.filter(slot =>
@@ -46,7 +46,7 @@ const SlotMachineSection = () => {
           {filteredSlots.map((slot, index) => (
             <div 
               key={index} 
-              className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+              className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group transform hover:scale-105"
               onClick={() => setSelectedSlot(slot)}
             >
               <div className="relative">

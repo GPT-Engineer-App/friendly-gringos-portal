@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 
 const SlotMachine = ({ slot, onClose }) => {
-  const [reels, setReels] = useState([0, 0, 0, 0, 0]);
+  const [reels, setReels] = useState([0, 0, 0]);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState('');
   const [balance, setBalance] = useState(1000);
@@ -18,8 +18,14 @@ const SlotMachine = ({ slot, onClose }) => {
   const { user } = useSupabaseAuth();
 
   const symbols = [
-    '🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣', '🃏',
-    '🍀', '🌟', '🎰', '💰', '🎲', '🃏', '👑', '🦁'
+    { symbol: '🍒', value: 1 },
+    { symbol: '🍋', value: 2 },
+    { symbol: '🍊', value: 3 },
+    { symbol: '🍇', value: 4 },
+    { symbol: '🔔', value: 5 },
+    { symbol: '💎', value: 10 },
+    { symbol: '7️⃣', value: 20 },
+    { symbol: '🃏', value: 50 },
   ];
 
   useEffect(() => {
@@ -54,7 +60,7 @@ const SlotMachine = ({ slot, onClose }) => {
     }
   };
 
-  const spin = () => {
+  const spin = useCallback(() => {
     if (balance < bet) {
       toast.error("Insufficient balance!");
       return;
@@ -85,30 +91,24 @@ const SlotMachine = ({ slot, onClose }) => {
     }, intervalDuration);
 
     updateBalance(balance - bet);
-  };
+  }, [balance, bet, autoPlay, autoPlayCount, symbols.length]);
 
   useEffect(() => {
     if (autoPlay && autoPlayCount > 0 && !spinning) {
       spin();
     }
-  }, [autoPlay, autoPlayCount, spinning]);
+  }, [autoPlay, autoPlayCount, spinning, spin]);
 
   const checkResult = () => {
+    const reelSymbols = reels.map(index => symbols[index]);
     let winAmount = 0;
-    const uniqueSymbols = new Set(reels);
     
-    if (uniqueSymbols.size === 1) {
-      winAmount = bet * 50; // Jackpot for all 5 symbols matching
+    if (reelSymbols[0].symbol === reelSymbols[1].symbol && reelSymbols[1].symbol === reelSymbols[2].symbol) {
+      winAmount = bet * reelSymbols[0].value;
       setResult(`Jackpot! You win ${winAmount} coins!`);
-    } else if (uniqueSymbols.size === 2) {
-      winAmount = bet * 10; // Big win for 4 matching symbols
-      setResult(`Big Win! You win ${winAmount} coins!`);
-    } else if (uniqueSymbols.size === 3) {
-      winAmount = bet * 5; // Medium win for 3 matching symbols
+    } else if (reelSymbols[0].symbol === reelSymbols[1].symbol || reelSymbols[1].symbol === reelSymbols[2].symbol) {
+      winAmount = bet * Math.max(reelSymbols[0].value, reelSymbols[1].value, reelSymbols[2].value) / 2;
       setResult(`Nice! You win ${winAmount} coins!`);
-    } else if (uniqueSymbols.size === 4) {
-      winAmount = bet * 2; // Small win for 2 matching symbols
-      setResult(`You win ${winAmount} coins!`);
     } else {
       setResult('Try again!');
     }
@@ -138,11 +138,18 @@ const SlotMachine = ({ slot, onClose }) => {
               {reels.map((reel, index) => (
                 <motion.div
                   key={index}
-                  className="text-6xl"
-                  animate={{ y: spinning ? [0, 100, 0] : 0 }}
-                  transition={{ duration: 0.5, repeat: spinning ? Infinity : 0, ease: "linear" }}
+                  className="text-6xl bg-gray-700 p-4 rounded-lg"
+                  animate={{ 
+                    y: spinning ? [0, 100, 0] : 0,
+                    rotateX: spinning ? [0, 360] : 0
+                  }}
+                  transition={{ 
+                    duration: 0.5, 
+                    repeat: spinning ? Infinity : 0, 
+                    ease: "linear" 
+                  }}
                 >
-                  {symbols[reel]}
+                  {symbols[reel].symbol}
                 </motion.div>
               ))}
             </div>
