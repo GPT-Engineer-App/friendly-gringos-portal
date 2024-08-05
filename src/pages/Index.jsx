@@ -5,6 +5,7 @@ import JackpotSection from '../components/JackpotSection';
 import SlotMachineSection from '../components/SlotMachineSection';
 import VIPSection from '../components/VIPSection';
 import TournamentSection from '../components/TournamentSection';
+import PromotionsSection from '../components/PromotionsSection';
 import Footer from '../components/Footer';
 import SlotMachine from '../components/SlotMachine';
 
@@ -24,13 +25,14 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       <Header />
       <main className="flex-grow">
         <MainBanner onPlayNow={handlePlayNow} />
         <JackpotSection />
         <SlotMachineSection onSelectSlot={setSelectedSlot} />
         <TournamentSection />
+        <PromotionsSection />
         <VIPSection />
       </main>
       <Footer />
