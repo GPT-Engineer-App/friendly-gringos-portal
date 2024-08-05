@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import GameStats from '../components/GameStats';
 
 const UserProfile = () => {
   const { user, updateProfile } = useSupabaseAuth();
@@ -81,7 +82,7 @@ const UserProfile = () => {
         .select('*')
         .eq('user_id', user.id)
         .order('played_at', { ascending: false })
-        .limit(10);
+        .limit(50);
 
       if (error) {
         console.error('Error fetching game history:', error);
@@ -96,9 +97,9 @@ const UserProfile = () => {
   }, [user]);
 
   return (
-    <div className="container mx-auto mt-8 max-w-4xl">
+    <div className="container mx-auto mt-8 max-w-6xl">
       <h1 className="text-2xl font-bold mb-4">User Profile</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex items-center space-x-4">
@@ -137,26 +138,29 @@ const UserProfile = () => {
             <Button type="submit" className="w-full">Update Profile</Button>
           </form>
         </div>
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Recent Game History</h2>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Game</TableHead>
-                <TableHead>Result</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {gameHistory.map((game) => (
-                <TableRow key={game.id}>
-                  <TableCell>{game.game_name}</TableCell>
-                  <TableCell>{game.result}</TableCell>
-                  <TableCell>{new Date(game.played_at).toLocaleDateString()}</TableCell>
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Recent Game History</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Game</TableHead>
+                  <TableHead>Result</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {gameHistory.slice(0, 10).map((game) => (
+                  <TableRow key={game.id}>
+                    <TableCell>{game.game_name}</TableCell>
+                    <TableCell>{game.result}</TableCell>
+                    <TableCell>{new Date(game.played_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <GameStats gameHistory={gameHistory} />
         </div>
       </div>
     </div>

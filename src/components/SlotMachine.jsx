@@ -4,6 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -11,6 +13,8 @@ const SlotMachine = ({ slot, onClose }) => {
   const [result, setResult] = useState('');
   const [balance, setBalance] = useState(1000);
   const [bet, setBet] = useState(10);
+  const [autoPlay, setAutoPlay] = useState(false);
+  const [autoPlayCount, setAutoPlayCount] = useState(0);
   const { user } = useSupabaseAuth();
 
   const symbols = {
@@ -80,18 +84,31 @@ const SlotMachine = ({ slot, onClose }) => {
     let spins = 0;
 
     const spinInterval = setInterval(() => {
-      setReels(reels.map(() => Math.floor(Math.random() * symbols.length)));
+      setReels(reels.map(() => Math.floor(Math.random() * symbols[slot.theme].length)));
       spins++;
 
       if (spins * intervalDuration >= spinDuration) {
         clearInterval(spinInterval);
         setSpinning(false);
         checkResult();
+        if (autoPlay && autoPlayCount > 1) {
+          setAutoPlayCount(prev => prev - 1);
+          setTimeout(spin, 1000);
+        } else if (autoPlay && autoPlayCount === 1) {
+          setAutoPlay(false);
+          setAutoPlayCount(0);
+        }
       }
     }, intervalDuration);
 
     updateBalance(balance - bet);
   };
+
+  useEffect(() => {
+    if (autoPlay && autoPlayCount > 0 && !spinning) {
+      spin();
+    }
+  }, [autoPlay, autoPlayCount, spinning]);
 
   const checkResult = () => {
     let winAmount = 0;
@@ -128,41 +145,71 @@ const SlotMachine = ({ slot, onClose }) => {
           <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
             <svg viewBox="0 0 300 200" className="w-full h-full">
               {/* Slot machine body */}
-              <rect width="300" height="200" fill={slot.colors[0]} />
-              <rect x="20" y="20" width="260" height="160" fill={slot.colors[1]} rx="10" />
+              <rect width="300" height="200" fill={colors[slot.theme][0]} />
+              <rect x="20" y="20" width="260" height="160" fill={colors[slot.theme][1]} rx="10" />
               
               {/* Reels */}
               {[0, 1, 2].map((i) => (
                 <g key={i} transform={`translate(${70 + i * 60}, 50)`}>
-                  <rect width="50" height="100" fill="white" stroke={slot.colors[2]} strokeWidth="4" />
-                  <text x="25" y="65" fontSize="40" textAnchor="middle" fill={slot.colors[2]}>
-                    {symbols[reels[i]]}
-                  </text>
+                  <rect width="50" height="100" fill="white" stroke={colors[slot.theme][2]} strokeWidth="4" />
+                  <motion.text
+                    x="25"
+                    y="65"
+                    fontSize="40"
+                    textAnchor="middle"
+                    fill={colors[slot.theme][2]}
+                    animate={{ y: spinning ? [0, 100, 0] : 0 }}
+                    transition={{ duration: 0.5, repeat: spinning ? Infinity : 0, ease: "linear" }}
+                  >
+                    {symbols[slot.theme][reels[i]]}
+                  </motion.text>
                 </g>
               ))}
 
               {/* Lever */}
-              <rect x="260" y="80" width="20" height="100" fill={slot.colors[2]} rx="10" />
-              <circle cx="270" cy="70" r="15" fill="red" />
+              <motion.g
+                animate={{ rotate: spinning ? 45 : 0 }}
+                transition={{ duration: 0.5 }}
+                style={{ transformOrigin: '270px 70px' }}
+              >
+                <rect x="260" y="80" width="20" height="100" fill={colors[slot.theme][2]} rx="10" />
+                <circle cx="270" cy="70" r="15" fill="red" />
+              </motion.g>
             </svg>
           </div>
           <div className="flex justify-between items-center mt-4 mb-2">
             <div>
               <label htmlFor="bet" className="mr-2">Bet:</label>
-              <input
+              <Slider
                 id="bet"
-                type="number"
-                value={bet}
-                onChange={(e) => setBet(Math.max(1, parseInt(e.target.value)))}
-                className="w-20 p-1 border rounded"
+                min={1}
+                max={100}
+                step={1}
+                value={[bet]}
+                onValueChange={(value) => setBet(value[0])}
+                className="w-32"
               />
+              <span className="ml-2">{bet} coins</span>
             </div>
             <div>Balance: {balance} coins</div>
           </div>
-          <Button onClick={spin} disabled={spinning} className="w-full mt-2 mb-2">
-            {spinning ? 'Spinning...' : 'Spin'}
-          </Button>
-          {result && <p className="text-center font-bold">{result}</p>}
+          <div className="flex space-x-2 mt-2 mb-2">
+            <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1">
+              {spinning ? 'Spinning...' : 'Spin'}
+            </Button>
+            <Button
+              onClick={() => {
+                setAutoPlay(!autoPlay);
+                setAutoPlayCount(autoPlay ? 0 : 10);
+              }}
+              variant={autoPlay ? "destructive" : "secondary"}
+              className="flex-1"
+            >
+              {autoPlay ? 'Stop Auto' : 'Auto Play'}
+            </Button>
+          </div>
+          {autoPlay && <p className="text-center text-sm">Auto spins remaining: {autoPlayCount}</p>}
+          {result && <p className="text-center font-bold mt-2">{result}</p>}
         </div>
       </DialogContent>
     </Dialog>
