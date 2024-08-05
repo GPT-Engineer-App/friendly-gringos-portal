@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { supabase } from '@/integrations/supabase';
+import { toast } from "sonner";
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState('');
+  const [balance, setBalance] = useState(1000);
+  const [bet, setBet] = useState(10);
+  const { user } = useSupabaseAuth();
 
   const symbols = ['♠', '♥', '♦', '♣', '★', '7'];
   const colors = {
@@ -19,7 +25,44 @@ const SlotMachine = ({ slot, onClose }) => {
     western: ['#bf360c', '#d84315', '#e64a19'],
   };
 
+  useEffect(() => {
+    if (user) {
+      fetchBalance();
+    }
+  }, [user]);
+
+  const fetchBalance = async () => {
+    const { data, error } = await supabase
+      .from('user_balance')
+      .select('balance')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching balance:', error);
+    } else {
+      setBalance(data.balance);
+    }
+  };
+
+  const updateBalance = async (newBalance) => {
+    const { error } = await supabase
+      .from('user_balance')
+      .upsert({ user_id: user.id, balance: newBalance });
+
+    if (error) {
+      console.error('Error updating balance:', error);
+    } else {
+      setBalance(newBalance);
+    }
+  };
+
   const spin = () => {
+    if (balance < bet) {
+      toast.error("Insufficient balance!");
+      return;
+    }
+
     setSpinning(true);
     setResult('');
     const spinDuration = 2000;
@@ -36,16 +79,33 @@ const SlotMachine = ({ slot, onClose }) => {
         checkResult();
       }
     }, intervalDuration);
+
+    updateBalance(balance - bet);
   };
 
   const checkResult = () => {
+    let winAmount = 0;
     if (reels[0] === reels[1] && reels[1] === reels[2]) {
-      setResult('Jackpot! You win!');
+      winAmount = bet * 10;
+      setResult(`Jackpot! You win ${winAmount} coins!`);
     } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
-      setResult('Two of a kind! Small win!');
+      winAmount = bet * 2;
+      setResult(`Two of a kind! You win ${winAmount} coins!`);
     } else {
       setResult('Try again!');
     }
+
+    if (winAmount > 0) {
+      updateBalance(balance + winAmount);
+    }
+
+    // Record game history
+    supabase.from('game_history').insert({
+      user_id: user.id,
+      game_name: slot.name,
+      result: winAmount > 0 ? `Won ${winAmount}` : 'Lost',
+      played_at: new Date().toISOString(),
+    });
   };
 
   return (
@@ -76,7 +136,20 @@ const SlotMachine = ({ slot, onClose }) => {
               <circle cx="270" cy="70" r="15" fill="red" />
             </svg>
           </div>
-          <Button onClick={spin} disabled={spinning} className="w-full mt-4 mb-2">
+          <div className="flex justify-between items-center mt-4 mb-2">
+            <div>
+              <label htmlFor="bet" className="mr-2">Bet:</label>
+              <input
+                id="bet"
+                type="number"
+                value={bet}
+                onChange={(e) => setBet(Math.max(1, parseInt(e.target.value)))}
+                className="w-20 p-1 border rounded"
+              />
+            </div>
+            <div>Balance: {balance} coins</div>
+          </div>
+          <Button onClick={spin} disabled={spinning} className="w-full mt-2 mb-2">
             {spinning ? 'Spinning...' : 'Spin'}
           </Button>
           {result && <p className="text-center font-bold">{result}</p>}

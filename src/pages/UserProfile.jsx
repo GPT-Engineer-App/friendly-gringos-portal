@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const UserProfile = () => {
   const { user, updateProfile } = useSupabaseAuth();
@@ -71,45 +72,93 @@ const UserProfile = () => {
     }
   };
 
+  const [gameHistory, setGameHistory] = useState([]);
+
+  useEffect(() => {
+    const fetchGameHistory = async () => {
+      const { data, error } = await supabase
+        .from('game_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('played_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching game history:', error);
+      } else {
+        setGameHistory(data);
+      }
+    };
+
+    if (user) {
+      fetchGameHistory();
+    }
+  }, [user]);
+
   return (
-    <div className="container mx-auto mt-8 max-w-md">
+    <div className="container mx-auto mt-8 max-w-4xl">
       <h1 className="text-2xl font-bold mb-4">User Profile</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center space-x-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={avatarUrl} alt={name} />
-            <AvatarFallback>{name.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              disabled={uploading}
-            />
-            {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <Avatar className="w-20 h-20">
+                <AvatarImage src={avatarUrl} alt={name} />
+                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploading}
+                />
+                {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full">Update Profile</Button>
+          </form>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Recent Game History</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Game</TableHead>
+                <TableHead>Result</TableHead>
+                <TableHead>Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {gameHistory.map((game) => (
+                <TableRow key={game.id}>
+                  <TableCell>{game.game_name}</TableCell>
+                  <TableCell>{game.result}</TableCell>
+                  <TableCell>{new Date(game.played_at).toLocaleDateString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <Button type="submit" className="w-full">Update Profile</Button>
-      </form>
+      </div>
     </div>
   );
 };
