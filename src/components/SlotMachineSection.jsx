@@ -9,14 +9,14 @@ const SlotMachineSection = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const slots = [
-    { name: 'Quantum Quandary', theme: 'science', image: '/placeholder.svg', description: 'A slot machine with quantum physics symbols, swirling atoms, and mathematical equations as reel symbols.' },
-    { name: 'Mythical Menagerie', theme: 'fantasy', image: '/placeholder.svg', description: 'Features mythical creatures like dragons, unicorns, and phoenixes on a magical forest background.' },
-    { name: 'Retro Reboot', theme: 'technology', image: '/placeholder.svg', description: 'Old-school computer parts and retro gaming icons on a circuit board backdrop.' },
-    { name: 'Culinary Chaos', theme: 'food', image: '/placeholder.svg', description: 'Whimsical kitchen utensils and ingredients flying around in a cartoon kitchen setting.' },
-    { name: 'Cosmic Carnival', theme: 'space', image: '/placeholder.svg', description: 'Alien circus performers and bizarre space attractions on a colorful asteroid field.' },
-    { name: 'Steampunk Spins', theme: 'steampunk', image: '/placeholder.svg', description: 'Brass gears, clockwork creatures, and Victorian-era inventors on a sepia-toned background.' },
-    { name: 'Enchanted Emojis', theme: 'modern', image: '/placeholder.svg', description: 'Popular emojis reimagined as magical creatures in a smartphone-shaped slot machine.' },
-    { name: 'Jurassic Jackpot', theme: 'prehistoric', image: '/placeholder.svg', description: 'Various dinosaurs and prehistoric plants in a lush, primordial jungle setting.' },
+    { name: 'Quantum Quandary', theme: 'science', image: '/images/slot-quantum.jpg', description: 'A slot machine with quantum physics symbols, swirling atoms, and mathematical equations as reel symbols.' },
+    { name: 'Mythical Menagerie', theme: 'fantasy', image: '/images/slot-mythical.jpg', description: 'Features mythical creatures like dragons, unicorns, and phoenixes on a magical forest background.' },
+    { name: 'Retro Reboot', theme: 'technology', image: '/images/slot-retro.jpg', description: 'Old-school computer parts and retro gaming icons on a circuit board backdrop.' },
+    { name: 'Culinary Chaos', theme: 'food', image: '/images/slot-culinary.jpg', description: 'Whimsical kitchen utensils and ingredients flying around in a cartoon kitchen setting.' },
+    { name: 'Cosmic Carnival', theme: 'space', image: '/images/slot-cosmic.jpg', description: 'Alien circus performers and bizarre space attractions on a colorful asteroid field.' },
+    { name: 'Steampunk Spins', theme: 'steampunk', image: '/images/slot-steampunk.jpg', description: 'Brass gears, clockwork creatures, and Victorian-era inventors on a sepia-toned background.' },
+    { name: 'Enchanted Emojis', theme: 'modern', image: '/images/slot-emojis.jpg', description: 'Popular emojis reimagined as magical creatures in a smartphone-shaped slot machine.' },
+    { name: 'Jurassic Jackpot', theme: 'prehistoric', image: '/images/slot-jurassic.jpg', description: 'Various dinosaurs and prehistoric plants in a lush, primordial jungle setting.' },
   ];
 
   const filteredSlots = slots.filter(slot =>
