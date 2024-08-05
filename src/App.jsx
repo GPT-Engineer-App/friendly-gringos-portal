@@ -18,22 +18,23 @@ const ErrorFallback = ({ error }) => (
 
 const App = () => (
   <ErrorBoundary FallbackComponent={ErrorFallback}>
-  <QueryClientProvider client={queryClient}>
-    <SupabaseAuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Routes>
-            {navItems.map(({ to, page }) => (
-              <Route key={to} path={to} element={page} />
-            ))}
-            <Route path="/404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SupabaseAuthProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <SupabaseAuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <Routes>
+              {navItems.map(({ to, page }) => (
+                <Route key={to} path={to} element={page} />
+              ))}
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </SupabaseAuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
