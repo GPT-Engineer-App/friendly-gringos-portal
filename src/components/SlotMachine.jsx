@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -15,22 +16,27 @@ const SlotMachine = ({ slot, onClose }) => {
   const [bet, setBet] = useState(10);
   const [autoPlay, setAutoPlay] = useState(false);
   const [autoPlayCount, setAutoPlayCount] = useState(0);
+  const [jackpot, setJackpot] = useState(10000);
+  const [winChance, setWinChance] = useState(0);
   const { user } = useSupabaseAuth();
+  const spinAudioRef = useRef(new Audio('/sounds/spin.mp3'));
+  const winAudioRef = useRef(new Audio('/sounds/win.mp3'));
 
   const symbols = [
-    { symbol: '🍒', value: 1 },
-    { symbol: '🍋', value: 2 },
-    { symbol: '🍊', value: 3 },
-    { symbol: '🍇', value: 4 },
-    { symbol: '🔔', value: 5 },
-    { symbol: '💎', value: 10 },
-    { symbol: '7️⃣', value: 20 },
-    { symbol: '🃏', value: 50 },
+    { symbol: '🍒', value: 1, weight: 20 },
+    { symbol: '🍋', value: 2, weight: 15 },
+    { symbol: '🍊', value: 3, weight: 12 },
+    { symbol: '🍇', value: 4, weight: 10 },
+    { symbol: '🔔', value: 5, weight: 8 },
+    { symbol: '💎', value: 10, weight: 5 },
+    { symbol: '7️⃣', value: 20, weight: 3 },
+    { symbol: '🃏', value: 50, weight: 1 },
   ];
 
   useEffect(() => {
     if (user) {
       fetchBalance();
+      fetchJackpot();
     }
   }, [user]);
 
@@ -48,6 +54,19 @@ const SlotMachine = ({ slot, onClose }) => {
     }
   };
 
+  const fetchJackpot = async () => {
+    const { data, error } = await supabase
+      .from('jackpot')
+      .select('amount')
+      .single();
+
+    if (error) {
+      console.error('Error fetching jackpot:', error);
+    } else {
+      setJackpot(data.amount);
+    }
+  };
+
   const updateBalance = async (newBalance) => {
     const { error } = await supabase
       .from('user_balance')
@@ -60,6 +79,19 @@ const SlotMachine = ({ slot, onClose }) => {
     }
   };
 
+  const updateJackpot = async (newAmount) => {
+    const { error } = await supabase
+      .from('jackpot')
+      .update({ amount: newAmount })
+      .eq('id', 1);
+
+    if (error) {
+      console.error('Error updating jackpot:', error);
+    } else {
+      setJackpot(newAmount);
+    }
+  };
+
   const spin = useCallback(() => {
     if (balance < bet) {
       toast.error("Insufficient balance!");
@@ -68,12 +100,13 @@ const SlotMachine = ({ slot, onClose }) => {
 
     setSpinning(true);
     setResult('');
+    spinAudioRef.current.play();
     const spinDuration = 2000;
     const intervalDuration = 100;
     let spins = 0;
 
     const spinInterval = setInterval(() => {
-      setReels(reels.map(() => Math.floor(Math.random() * symbols.length)));
+      setReels(reels.map(() => weightedRandomSymbol()));
       spins++;
 
       if (spins * intervalDuration >= spinDuration) {
@@ -91,7 +124,8 @@ const SlotMachine = ({ slot, onClose }) => {
     }, intervalDuration);
 
     updateBalance(balance - bet);
-  }, [balance, bet, autoPlay, autoPlayCount, symbols.length]);
+    updateJackpot(jackpot + bet * 0.01);
+  }, [balance, bet, autoPlay, autoPlayCount, jackpot]);
 
   useEffect(() => {
     if (autoPlay && autoPlayCount > 0 && !spinning) {
@@ -99,21 +133,41 @@ const SlotMachine = ({ slot, onClose }) => {
     }
   }, [autoPlay, autoPlayCount, spinning, spin]);
 
+  const weightedRandomSymbol = () => {
+    const totalWeight = symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (let i = 0; i < symbols.length; i++) {
+      if (random < symbols[i].weight) {
+        return i;
+      }
+      random -= symbols[i].weight;
+    }
+    return symbols.length - 1;
+  };
+
   const checkResult = () => {
     const reelSymbols = reels.map(index => symbols[index]);
     let winAmount = 0;
     
     if (reelSymbols[0].symbol === reelSymbols[1].symbol && reelSymbols[1].symbol === reelSymbols[2].symbol) {
-      winAmount = bet * reelSymbols[0].value;
-      setResult(`Jackpot! You win ${winAmount} coins!`);
+      if (reelSymbols[0].symbol === '🃏') {
+        winAmount = jackpot;
+        setResult(`MEGA JACKPOT! You win ${winAmount} coins!`);
+        updateJackpot(10000); // Reset jackpot after win
+      } else {
+        winAmount = bet * reelSymbols[0].value * 3;
+        setResult(`Jackpot! You win ${winAmount} coins!`);
+      }
     } else if (reelSymbols[0].symbol === reelSymbols[1].symbol || reelSymbols[1].symbol === reelSymbols[2].symbol) {
-      winAmount = bet * Math.max(reelSymbols[0].value, reelSymbols[1].value, reelSymbols[2].value) / 2;
+      winAmount = bet * Math.max(reelSymbols[0].value, reelSymbols[1].value, reelSymbols[2].value);
       setResult(`Nice! You win ${winAmount} coins!`);
     } else {
       setResult('Try again!');
     }
 
     if (winAmount > 0) {
+      winAudioRef.current.play();
       updateBalance(balance + winAmount);
     }
 
@@ -121,10 +175,19 @@ const SlotMachine = ({ slot, onClose }) => {
     supabase.from('game_history').insert({
       user_id: user.id,
       game_name: slot.name,
+      bet_amount: bet,
+      win_amount: winAmount,
       result: winAmount > 0 ? `Won ${winAmount}` : 'Lost',
       played_at: new Date().toISOString(),
     });
   };
+
+  useEffect(() => {
+    const totalValue = symbols.reduce((sum, symbol) => sum + symbol.value * symbol.weight, 0);
+    const averageValue = totalValue / symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
+    const theoreticalWinChance = (averageValue * 3) / 100; // Simplified calculation
+    setWinChance(theoreticalWinChance * 100);
+  }, []);
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -169,6 +232,11 @@ const SlotMachine = ({ slot, onClose }) => {
             </div>
             <div>Balance: {balance} coins</div>
           </div>
+          <div className="flex justify-between items-center mt-2 mb-4">
+            <div>Jackpot: {jackpot} coins</div>
+            <div>Win Chance: {winChance.toFixed(2)}%</div>
+          </div>
+          <Progress value={winChance} className="mb-4" />
           <div className="flex space-x-2 mt-4">
             <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1 bg-green-500 hover:bg-green-600">
               {spinning ? 'Spinning...' : 'Spin'}

@@ -1,31 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SlotMachine from './SlotMachine';
+import { supabase } from '@/integrations/supabase';
 
 const SlotMachineSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [slots, setSlots] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const slots = [
-    { name: 'Book of Dead', theme: 'ancient', image: '/images/slots/book-of-dead.jpg', provider: 'Play\'n GO' },
-    { name: 'Starburst', theme: 'space', image: '/images/slots/starburst.jpg', provider: 'NetEnt' },
-    { name: 'Gonzo\'s Quest', theme: 'adventure', image: '/images/slots/gonzos-quest.jpg', provider: 'NetEnt' },
-    { name: 'Mega Moolah', theme: 'safari', image: '/images/slots/mega-moolah.jpg', provider: 'Microgaming' },
-    { name: 'Reactoonz', theme: 'alien', image: '/images/slots/reactoonz.jpg', provider: 'Play\'n GO' },
-    { name: 'Dead or Alive 2', theme: 'western', image: '/images/slots/dead-or-alive-2.jpg', provider: 'NetEnt' },
-    { name: 'Sweet Bonanza', theme: 'candy', image: '/images/slots/sweet-bonanza.jpg', provider: 'Pragmatic Play' },
-    { name: 'Wolf Gold', theme: 'wildlife', image: '/images/slots/wolf-gold.jpg', provider: 'Pragmatic Play' },
-    { name: 'Immortal Romance', theme: 'vampire', image: '/images/slots/immortal-romance.jpg', provider: 'Microgaming' },
-    { name: 'Jammin\' Jars', theme: 'fruit', image: '/images/slots/jammin-jars.jpg', provider: 'Push Gaming' },
-    { name: 'Bonanza', theme: 'mining', image: '/images/slots/bonanza.jpg', provider: 'Big Time Gaming' },
-    { name: 'Fire Joker', theme: 'classic', image: '/images/slots/fire-joker.jpg', provider: 'Play\'n GO' },
-  ];
+  useEffect(() => {
+    fetchSlots();
+  }, []);
+
+  const fetchSlots = async () => {
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .order('popularity', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching slots:', error);
+    } else {
+      setSlots(data);
+    }
+    setLoading(false);
+  };
 
   const filteredSlots = slots.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    slot.provider.toLowerCase().includes(searchTerm.toLowerCase())
+    slot.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    slot.theme.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -35,33 +44,53 @@ const SlotMachineSection = () => {
         <div className="relative mb-8">
           <Input
             type="text"
-            placeholder="Search slots or providers..."
+            placeholder="Search slots, providers, or themes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 w-full bg-gray-800 text-white border-gray-700"
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {filteredSlots.map((slot, index) => (
-            <div 
-              key={index} 
-              className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group transform hover:scale-105"
-              onClick={() => setSelectedSlot(slot)}
-            >
-              <div className="relative">
-                <img src={slot.image} alt={slot.name} className="w-full h-40 object-cover" />
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={() => setSelectedSlot(slot)}>Play Now</Button>
-                </div>
-              </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-white text-sm truncate">{slot.name}</h3>
-                <p className="text-gray-400 text-xs">{slot.provider}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center text-white">Loading slots...</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {filteredSlots.map((slot) => (
+              <TooltipProvider key={slot.id}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div 
+                      className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group transform hover:scale-105"
+                      onClick={() => setSelectedSlot(slot)}
+                    >
+                      <div className="relative">
+                        <img src={slot.image} alt={slot.name} className="w-full h-40 object-cover" />
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={() => setSelectedSlot(slot)}>Play Now</Button>
+                        </div>
+                        <Badge className="absolute top-2 right-2 bg-blue-500">{slot.rtp}% RTP</Badge>
+                      </div>
+                      <div className="p-3">
+                        <h3 className="font-semibold text-white text-sm truncate">{slot.name}</h3>
+                        <p className="text-gray-400 text-xs">{slot.provider}</p>
+                        <div className="flex items-center mt-1">
+                          <span className="text-yellow-400 text-xs mr-1">★</span>
+                          <span className="text-gray-300 text-xs">{slot.rating.toFixed(1)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Theme: {slot.theme}</p>
+                    <p>Volatility: {slot.volatility}</p>
+                    <p>Min Bet: ${slot.min_bet}</p>
+                    <p>Max Bet: ${slot.max_bet}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
+        )}
       </div>
       {selectedSlot && (
         <SlotMachine
