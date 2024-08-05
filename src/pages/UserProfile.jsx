@@ -13,6 +13,11 @@ const UserProfile = () => {
   const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    console.log('UserProfile mounted');
+  }, []);
 
   useEffect(() => {
     if (user) {

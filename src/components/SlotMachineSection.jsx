@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,17 @@ const SlotMachineSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState('All');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading delay
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+  useEffect(() => {
+    console.log('SlotMachineSection mounted');
+  }, []);
 
   const slotProviders = ['All', 'NetEnt', 'Microgaming', 'Play\'n GO', 'Pragmatic Play', 'Yggdrasil'];
   const slots = [
