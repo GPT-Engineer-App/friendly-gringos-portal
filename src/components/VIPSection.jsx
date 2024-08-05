@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const VIPSection = () => {
+  const [selectedLevel, setSelectedLevel] = useState(null);
   const vipLevels = [
-    { level: 'Bronze', progress: 20, benefits: ['5% Cashback', 'Weekly Bonus'] },
-    { level: 'Silver', progress: 40, benefits: ['10% Cashback', 'Daily Bonus', 'Personal Account Manager'] },
-    { level: 'Gold', progress: 60, benefits: ['15% Cashback', 'Higher Limits', 'Exclusive Events'] },
-    { level: 'Platinum', progress: 80, benefits: ['20% Cashback', 'VIP Support', 'Custom Bonuses'] },
+    { level: 'Bronze', progress: 20, benefits: ['5% Cashback', 'Weekly Bonus'], pointsNeeded: 1000 },
+    { level: 'Silver', progress: 40, benefits: ['10% Cashback', 'Daily Bonus', 'Personal Account Manager'], pointsNeeded: 5000 },
+    { level: 'Gold', progress: 60, benefits: ['15% Cashback', 'Higher Limits', 'Exclusive Events'], pointsNeeded: 10000 },
+    { level: 'Platinum', progress: 80, benefits: ['20% Cashback', 'VIP Support', 'Custom Bonuses'], pointsNeeded: 25000 },
   ];
 
   return (
@@ -28,14 +30,37 @@ const VIPSection = () => {
                     <li key={i}>{benefit}</li>
                   ))}
                 </ul>
+                <p className="text-sm text-gray-600 mb-4">Points needed: {level.pointsNeeded}</p>
               </CardContent>
               <div className="p-4 mt-auto">
-                <Button className="w-full">Upgrade to {level.level}</Button>
+                <Button onClick={() => setSelectedLevel(level)} className="w-full">Learn More</Button>
               </div>
             </Card>
           ))}
         </div>
       </div>
+      {selectedLevel && (
+        <Dialog open={!!selectedLevel} onOpenChange={() => setSelectedLevel(null)}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{selectedLevel.level} VIP Level</DialogTitle>
+              <DialogDescription>
+                Unlock exclusive benefits and rewards
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              <h4 className="font-semibold mb-2">Benefits:</h4>
+              <ul className="list-disc pl-5 mb-4">
+                {selectedLevel.benefits.map((benefit, i) => (
+                  <li key={i}>{benefit}</li>
+                ))}
+              </ul>
+              <p className="mb-4">Points needed to reach this level: {selectedLevel.pointsNeeded}</p>
+              <Button className="w-full">Start Earning Points</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </section>
   );
 };

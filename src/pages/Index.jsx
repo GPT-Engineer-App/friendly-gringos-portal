@@ -2,6 +2,8 @@ import React from 'react';
 import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
 import SlotMachineSection from '../components/SlotMachineSection';
+import LiveCasinoSection from '../components/LiveCasinoSection';
+import VIPSection from '../components/VIPSection';
 import Footer from '../components/Footer';
 
 const Index = () => {
@@ -11,6 +13,8 @@ const Index = () => {
       <main className="flex-grow">
         <MainBanner />
         <SlotMachineSection />
+        <LiveCasinoSection />
+        <VIPSection />
       </main>
       <Footer />
     </div>
