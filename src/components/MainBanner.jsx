@@ -71,7 +71,6 @@ const MainBanner = () => {
           </div>
         </motion.div>
       ))}
-      </div>
     </section>
   );
 };
