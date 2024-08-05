@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SlotMachine from './SlotMachine';
 import { supabase } from '@/integrations/supabase';
+import { toast } from "sonner";
 
 const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,6 +38,10 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSlots();
+  }, []);
 
   const filteredSlots = slots.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
