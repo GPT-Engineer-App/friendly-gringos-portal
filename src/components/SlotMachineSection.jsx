@@ -9,14 +9,14 @@ const SlotMachineSection = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
 
   const slots = [
-    { name: 'Cosmic Spin', theme: 'space', colors: ['#1E3A8A', '#3B82F6', '#93C5FD'] },
-    { name: 'Treasure Hunt', theme: 'adventure', colors: ['#92400E', '#F59E0B', '#FDE68A'] },
-    { name: 'Mystic Forest', theme: 'nature', colors: ['#064E3B', '#10B981', '#A7F3D0'] },
-    { name: 'Neon Nights', theme: 'cyberpunk', colors: ['#4C1D95', '#8B5CF6', '#DDD6FE'] },
-    { name: 'Ancient Wonders', theme: 'history', colors: ['#78350F', '#D97706', '#FDE68A'] },
-    { name: 'Fruit Frenzy', theme: 'food', colors: ['#DC2626', '#FBBF24', '#34D399'] },
-    { name: 'Ocean Treasures', theme: 'underwater', colors: ['#1E40AF', '#3B82F6', '#BFDBFE'] },
-    { name: 'Wild West', theme: 'western', colors: ['#92400E', '#F59E0B', '#FDE68A'] },
+    { name: 'Cosmic Spin', theme: 'space', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Treasure Hunt', theme: 'adventure', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Mystic Forest', theme: 'nature', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Neon Nights', theme: 'cyberpunk', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Ancient Wonders', theme: 'history', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Fruit Frenzy', theme: 'food', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Ocean Treasures', theme: 'underwater', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
+    { name: 'Wild West', theme: 'western', image: 'https://oaidalleapiprodscus.blob.core.windows.net/private/org-ct6DYdHBdpbG6s5cIJ3TGKNP/user-nUCao1VfJu8jHUdtqLgTHGvk/img-Wd0Ow0Ov3Eo9Nh3Gu4Tz6Ixd.png?st=2024-03-19T14%3A39%3A13Z&se=2024-03-19T16%3A39%3A13Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-03-19T15%3A39%3A13Z&ske=2024-03-20T15%3A39%3A13Z&sks=b&skv=2021-08-06&sig=Aq%2BXrVmLMHNQXVZRPXCGGXGOZHXGFXLXXXXXXXXXXXX%3D' },
   ];
 
   const filteredSlots = slots.filter(slot =>
@@ -44,13 +44,7 @@ const SlotMachineSection = () => {
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
               onClick={() => setSelectedSlot(slot)}
             >
-              <div className="w-full h-32 relative">
-                <svg viewBox="0 0 100 100" className="w-full h-full">
-                  <rect width="100" height="100" fill={slot.colors[0]} />
-                  <circle cx="50" cy="50" r="30" fill={slot.colors[1]} />
-                  <path d="M50 20 L80 80 L20 80 Z" fill={slot.colors[2]} />
-                </svg>
-              </div>
+              <img src={slot.image} alt={slot.name} className="w-full h-32 object-cover rounded-t-lg" />
               <div className="p-2">
                 <h3 className="font-semibold text-center text-sm truncate">{slot.name}</h3>
                 <Button className="w-full mt-2" size="sm" onClick={() => setSelectedSlot(slot)}>Play</Button>
