@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const MainBanner = ({ onPlayNow }) => {
+const MainBanner = ({ onPlayNow, featuredSlot }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { user } = useSupabaseAuth();
+  
   const slides = [
     {
       title: "Welcome to Matrix Slots",
-      subtitle: "Spin to win on your mobile!",
+      subtitle: user ? `Welcome back, ${user.user_metadata.name || user.email}!` : "Sign up now and get a welcome bonus!",
       image: "/images/main-banner.jpg"
     },
     {
-      title: "Huge Jackpots Await",
-      subtitle: "Win life-changing prizes!",
-      image: "/images/jackpots-banner.jpg"
+      title: featuredSlot ? `Featured Game: ${featuredSlot.name}` : "Huge Jackpots Await",
+      subtitle: featuredSlot ? `Try our popular ${featuredSlot.theme} themed slot!` : "Win life-changing prizes!",
+      image: featuredSlot?.image || "/images/jackpots-banner.jpg"
     },
     {
       title: "New Games Added Weekly",
@@ -28,7 +31,7 @@ const MainBanner = ({ onPlayNow }) => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
   return (
     <section className="relative h-[300px] md:h-[400px] overflow-hidden">
@@ -65,7 +68,7 @@ const MainBanner = ({ onPlayNow }) => {
               transition={{ delay: 0.6 }}
             >
               <Button size="lg" className="bg-green-500 hover:bg-green-600" onClick={onPlayNow}>
-                Play Now
+                {user ? 'Play Now' : 'Sign Up'}
               </Button>
             </motion.div>
           </div>
