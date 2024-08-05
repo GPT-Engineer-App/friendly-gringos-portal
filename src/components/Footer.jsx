@@ -7,8 +7,8 @@ const Footer = () => {
       <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">5Gringos</h3>
-            <p>Experience the thrill of online gaming with 5Gringos!</p>
+            <h3 className="text-xl font-bold mb-4">Matrix Casino</h3>
+            <p>Experience the thrill of online gaming with Matrix Casino!</p>
           </div>
           <div>
             <h3 className="text-xl font-bold mb-4">Quick Links</h3>
@@ -29,7 +29,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="mt-8 text-center">
-          <p>&copy; 2024 5Gringos. All rights reserved.</p>
+          <p>&copy; 2024 Matrix Casino. All rights reserved.</p>
         </div>
       </div>
     </footer>
