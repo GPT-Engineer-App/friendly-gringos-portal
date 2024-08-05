@@ -39,6 +39,27 @@ const SlotMachine = ({ slot, onClose }) => {
     { symbol: '🃏', value: 50, weight: 1 },
   ];
 
+  const [reelHeight, setReelHeight] = useState(0);
+
+  useEffect(() => {
+    const updateReelHeight = () => {
+      const reelElement = document.querySelector('.reel');
+      if (reelElement) {
+        setReelHeight(reelElement.offsetHeight);
+      }
+    };
+
+    updateReelHeight();
+    window.addEventListener('resize', updateReelHeight);
+
+    return () => window.removeEventListener('resize', updateReelHeight);
+  }, []);
+
+  const getSymbolStyles = (index) => ({
+    transform: `translateY(${-reelHeight * index}px)`,
+    transition: spinning ? 'transform 0.5s cubic-bezier(.17,.67,.83,.67)' : 'none',
+  });
+
   useEffect(() => {
     if (user) {
       fetchBalance();
@@ -226,22 +247,16 @@ const SlotMachine = ({ slot, onClose }) => {
         <div className="mt-4">
           <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
             <div className="flex justify-around items-center h-full">
-              {reels.map((reel, index) => (
-                <motion.div
-                  key={index}
-                  className="text-6xl bg-gray-700 p-4 rounded-lg"
-                  animate={{ 
-                    y: spinning ? [0, 100, 0] : 0,
-                    rotateX: spinning ? [0, 360] : 0
-                  }}
-                  transition={{ 
-                    duration: 0.5, 
-                    repeat: spinning ? Infinity : 0, 
-                    ease: "linear" 
-                  }}
-                >
-                  {symbols[reel].symbol}
-                </motion.div>
+              {reels.map((reelIndex, index) => (
+                <div key={index} className="reel w-1/3 h-full overflow-hidden">
+                  <div className="reel-container" style={getSymbolStyles(reelIndex)}>
+                    {symbols.map((symbol, symbolIndex) => (
+                      <div key={symbolIndex} className="symbol flex items-center justify-center h-full text-6xl">
+                        {symbol.symbol}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

@@ -19,17 +19,23 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   }, []);
 
   const fetchSlots = async () => {
-    const { data, error } = await supabase
-      .from('slots')
-      .select('*')
-      .order('popularity', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('slots')
+        .select('*')
+        .order('popularity', { ascending: false });
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      setSlots(data || []);
+    } catch (error) {
       console.error('Error fetching slots:', error);
-    } else {
-      setSlots(data);
+      toast.error('Failed to load slots. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const filteredSlots = slots.filter(slot =>
