@@ -20,6 +20,7 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    console.log("SupabaseAuthProviderInner useEffect");
     const getUser = async () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();

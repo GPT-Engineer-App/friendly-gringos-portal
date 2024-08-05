@@ -7,6 +7,7 @@ import SlotMachine from './SlotMachine';
 const SlotMachineSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [error, setError] = useState(null);
 
   const slots = [
     { name: 'Starburst', provider: 'NetEnt', image: 'https://example.com/starburst.jpg' },

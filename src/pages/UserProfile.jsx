@@ -11,6 +11,7 @@ const UserProfile = () => {
   const { user, updateProfile } = useSupabaseAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [error, setError] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
 

@@ -16,9 +16,11 @@ const ErrorFallback = ({ error }) => (
   </div>
 );
 
-const App = () => (
-  <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <QueryClientProvider client={queryClient}>
+const App = () => {
+  console.log("Rendering App component");
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <QueryClientProvider client={queryClient}>
       <SupabaseAuthProvider>
         <TooltipProvider>
           <Toaster />
