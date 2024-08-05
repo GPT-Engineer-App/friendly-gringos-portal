@@ -6,7 +6,6 @@ import { navItems } from "./nav-items";
 import NotFound from "./pages/NotFound";
 import { SupabaseAuthProvider } from "./integrations/supabase/auth";
 import { ErrorBoundary } from "react-error-boundary";
-import CardGame from "./pages/CardGame";
 
 const queryClient = new QueryClient();
 
