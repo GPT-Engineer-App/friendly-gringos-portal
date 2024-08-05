@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -7,7 +7,7 @@ const SlotMachine = ({ slot, onClose }) => {
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState('');
 
-  const symbols = ['🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣'];
+  const symbols = ['♠', '♥', '♦', '♣', '★', '7'];
 
   const spin = () => {
     setSpinning(true);
@@ -45,14 +45,28 @@ const SlotMachine = ({ slot, onClose }) => {
           <DialogTitle>{slot.name}</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <div className="flex justify-center space-x-4 text-6xl mb-4">
-            {reels.map((reel, index) => (
-              <div key={index} className="w-20 h-20 border-2 border-gray-300 rounded flex items-center justify-center">
-                {symbols[reel]}
-              </div>
-            ))}
+          <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
+            <svg viewBox="0 0 300 200" className="w-full h-full">
+              {/* Slot machine body */}
+              <rect width="300" height="200" fill={slot.colors[0]} />
+              <rect x="20" y="20" width="260" height="160" fill={slot.colors[1]} rx="10" />
+              
+              {/* Reels */}
+              {[0, 1, 2].map((i) => (
+                <g key={i} transform={`translate(${70 + i * 60}, 50)`}>
+                  <rect width="50" height="100" fill="white" stroke={slot.colors[2]} strokeWidth="4" />
+                  <text x="25" y="65" fontSize="40" textAnchor="middle" fill={slot.colors[2]}>
+                    {symbols[reels[i]]}
+                  </text>
+                </g>
+              ))}
+
+              {/* Lever */}
+              <rect x="260" y="80" width="20" height="100" fill={slot.colors[2]} rx="10" />
+              <circle cx="270" cy="70" r="15" fill="red" />
+            </svg>
           </div>
-          <Button onClick={spin} disabled={spinning} className="w-full mb-4">
+          <Button onClick={spin} disabled={spinning} className="w-full mt-4 mb-2">
             {spinning ? 'Spinning...' : 'Spin'}
           </Button>
           {result && <p className="text-center font-bold">{result}</p>}

@@ -7,21 +7,16 @@ import SlotMachine from './SlotMachine';
 const SlotMachineSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [error, setError] = useState(null);
 
   const slots = [
-    { name: 'Starburst', provider: 'NetEnt', image: 'https://example.com/starburst.jpg' },
-    { name: 'Mega Moolah', provider: 'Microgaming', image: 'https://example.com/mega-moolah.jpg' },
-    { name: 'Book of Dead', provider: 'Play\'n GO', image: 'https://example.com/book-of-dead.jpg' },
-    { name: "Gonzo's Quest", provider: 'NetEnt', image: 'https://example.com/gonzos-quest.jpg' },
-    { name: 'Wolf Gold', provider: 'Pragmatic Play', image: 'https://example.com/wolf-gold.jpg' },
-    { name: 'Vikings Go Berzerk', provider: 'Yggdrasil', image: 'https://example.com/vikings-go-berzerk.jpg' },
-    { name: 'Reactoonz', provider: 'Play\'n GO', image: 'https://example.com/reactoonz.jpg' },
-    { name: 'Dead or Alive 2', provider: 'NetEnt', image: 'https://example.com/dead-or-alive-2.jpg' },
-    { name: 'Sweet Bonanza', provider: 'Pragmatic Play', image: 'https://example.com/sweet-bonanza.jpg' },
-    { name: 'Immortal Romance', provider: 'Microgaming', image: 'https://example.com/immortal-romance.jpg' },
-    { name: 'Valley of the Gods', provider: 'Yggdrasil', image: 'https://example.com/valley-of-the-gods.jpg' },
-    { name: 'Fire Joker', provider: 'Play\'n GO', image: 'https://example.com/fire-joker.jpg' },
+    { name: 'Cosmic Spin', theme: 'space', colors: ['#1E3A8A', '#3B82F6', '#93C5FD'] },
+    { name: 'Treasure Hunt', theme: 'adventure', colors: ['#92400E', '#F59E0B', '#FDE68A'] },
+    { name: 'Mystic Forest', theme: 'nature', colors: ['#064E3B', '#10B981', '#A7F3D0'] },
+    { name: 'Neon Nights', theme: 'cyberpunk', colors: ['#4C1D95', '#8B5CF6', '#DDD6FE'] },
+    { name: 'Ancient Wonders', theme: 'history', colors: ['#78350F', '#D97706', '#FDE68A'] },
+    { name: 'Fruit Frenzy', theme: 'food', colors: ['#DC2626', '#FBBF24', '#34D399'] },
+    { name: 'Ocean Treasures', theme: 'underwater', colors: ['#1E40AF', '#3B82F6', '#BFDBFE'] },
+    { name: 'Wild West', theme: 'western', colors: ['#92400E', '#F59E0B', '#FDE68A'] },
   ];
 
   const filteredSlots = slots.filter(slot =>
@@ -42,14 +37,20 @@ const SlotMachineSection = () => {
           />
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredSlots.map((slot, index) => (
             <div 
               key={index} 
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
               onClick={() => setSelectedSlot(slot)}
             >
-              <img src={slot.image} alt={slot.name} className="w-full h-32 object-cover" />
+              <div className="w-full h-32 relative">
+                <svg viewBox="0 0 100 100" className="w-full h-full">
+                  <rect width="100" height="100" fill={slot.colors[0]} />
+                  <circle cx="50" cy="50" r="30" fill={slot.colors[1]} />
+                  <path d="M50 20 L80 80 L20 80 Z" fill={slot.colors[2]} />
+                </svg>
+              </div>
               <div className="p-2">
                 <h3 className="font-semibold text-center text-sm truncate">{slot.name}</h3>
                 <Button className="w-full mt-2" size="sm" onClick={() => setSelectedSlot(slot)}>Play</Button>
