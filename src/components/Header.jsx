@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import AuthModal from './AuthModal';
@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { navItems } from '@/nav-items';
 
 const Header = () => {
   const { user, logout } = useSupabaseAuth();
@@ -29,10 +30,18 @@ const Header = () => {
         <div className="text-2xl font-bold">Matrix Casino</div>
         <nav>
           <ul className="flex space-x-4">
-            <li><Link to="/" className="hover:text-gray-300">Home</Link></li>
-            <li><a href="#slots" className="hover:text-gray-300">Slots</a></li>
-            <li><a href="#promotions" className="hover:text-gray-300">Promotions</a></li>
-            <li><a href="#support" className="hover:text-gray-300">Support</a></li>
+            {navItems.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={item.to}
+                  className={`hover:text-gray-300 ${
+                    location.pathname === item.to ? 'font-bold' : ''
+                  }`}
+                >
+                  {item.title}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
         <div className="space-x-2">
