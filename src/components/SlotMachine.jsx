@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Howl } from 'howler';
+import confetti from 'canvas-confetti';
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -37,7 +38,12 @@ const SlotMachine = ({ slot, onClose }) => {
     { symbol: '💎', value: 10, weight: 5 },
     { symbol: '7️⃣', value: 20, weight: 3 },
     { symbol: '🃏', value: 50, weight: 1 },
+    { symbol: '🌟', value: 100, weight: 1 }, // Wild symbol
   ];
+
+  const [freeSpins, setFreeSpins] = useState(0);
+  const [multiplier, setMultiplier] = useState(1);
+  const [bonusGame, setBonusGame] = useState(false);
 
   const [reelHeight, setReelHeight] = useState(0);
 
@@ -181,6 +187,11 @@ const SlotMachine = ({ slot, onClose }) => {
   const checkResult = () => {
     const reelSymbols = reels.map(index => symbols[index]);
     let winAmount = 0;
+    let newFreeSpins = freeSpins;
+    let newMultiplier = multiplier;
+    
+    // Check for wild symbols
+    const wildCount = reelSymbols.filter(s => s.symbol === '🌟').length;
     
     if (reelSymbols[0].symbol === reelSymbols[1].symbol && reelSymbols[1].symbol === reelSymbols[2].symbol) {
       if (reelSymbols[0].symbol === '🃏') {
@@ -188,23 +199,46 @@ const SlotMachine = ({ slot, onClose }) => {
         setResult(`MEGA JACKPOT! You win ${winAmount} coins!`);
         updateJackpot(10000); // Reset jackpot after win
         jackpotSound.current.play();
+        confetti();
       } else {
-        winAmount = bet * reelSymbols[0].value * 3;
+        winAmount = bet * reelSymbols[0].value * 3 * multiplier;
         setResult(`Jackpot! You win ${winAmount} coins!`);
         winSound.current.play();
+        confetti();
       }
-    } else if (reelSymbols[0].symbol === reelSymbols[1].symbol || reelSymbols[1].symbol === reelSymbols[2].symbol) {
-      winAmount = bet * Math.max(reelSymbols[0].value, reelSymbols[1].value, reelSymbols[2].value);
+    } else if (wildCount > 0 || reelSymbols[0].symbol === reelSymbols[1].symbol || reelSymbols[1].symbol === reelSymbols[2].symbol) {
+      const maxValue = Math.max(...reelSymbols.map(s => s.value));
+      winAmount = bet * maxValue * (wildCount + 1) * multiplier;
       setResult(`Nice! You win ${winAmount} coins!`);
       winSound.current.play();
     } else {
       setResult('Try again!');
     }
 
+    // Check for free spins
+    if (reelSymbols.filter(s => s.symbol === '7️⃣').length >= 2) {
+      newFreeSpins += 5;
+      setResult(prev => `${prev} You won 5 free spins!`);
+    }
+
+    // Check for multiplier increase
+    if (reelSymbols.filter(s => s.symbol === '💎').length >= 2) {
+      newMultiplier = Math.min(multiplier + 1, 5);
+      setResult(prev => `${prev} Multiplier increased to ${newMultiplier}x!`);
+    }
+
+    // Trigger bonus game
+    if (reelSymbols.filter(s => s.symbol === '🔔').length === 3) {
+      setBonusGame(true);
+    }
+
     if (winAmount > 0) {
       updateBalance(balance + winAmount);
       playWinAnimation(winAmount);
     }
+
+    setFreeSpins(newFreeSpins);
+    setMultiplier(newMultiplier);
 
     // Record game history
     supabase.from('game_history').insert({
@@ -289,6 +323,8 @@ const SlotMachine = ({ slot, onClose }) => {
           </div>
           <div className="flex justify-between items-center mt-2 mb-4">
             <div>Jackpot: {jackpot} coins</div>
+            <div>Free Spins: {freeSpins}</div>
+            <div>Multiplier: {multiplier}x</div>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -303,7 +339,7 @@ const SlotMachine = ({ slot, onClose }) => {
           <Progress value={winChance} className="mb-4" />
           <div className="flex space-x-2 mt-4">
             <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1 bg-green-500 hover:bg-green-600">
-              {spinning ? 'Spinning...' : 'Spin'}
+              {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins})` : 'Spin'}
             </Button>
             <Button
               onClick={() => {
@@ -319,6 +355,28 @@ const SlotMachine = ({ slot, onClose }) => {
           {autoPlay && <p className="text-center text-sm mt-2">Auto spins remaining: {autoPlayCount}</p>}
           {result && <p className="text-center font-bold mt-4 text-xl">{result}</p>}
         </div>
+        {bonusGame && (
+          <div className="mt-4 p-4 bg-yellow-100 rounded-lg">
+            <h3 className="text-xl font-bold mb-2">Bonus Game!</h3>
+            <p>Pick a chest to reveal your prize:</p>
+            <div className="flex justify-around mt-4">
+              {[1, 2, 3].map((chest) => (
+                <Button
+                  key={chest}
+                  onClick={() => {
+                    const prize = Math.floor(Math.random() * 500) + 100;
+                    updateBalance(balance + prize);
+                    setBonusGame(false);
+                    toast.success(`You won ${prize} coins in the bonus game!`);
+                  }}
+                  className="bg-yellow-500 hover:bg-yellow-600"
+                >
+                  Chest {chest}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
