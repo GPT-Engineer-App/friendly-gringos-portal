@@ -4,11 +4,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Howl } from 'howler';
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -20,9 +21,12 @@ const SlotMachine = ({ slot, onClose }) => {
   const [autoPlayCount, setAutoPlayCount] = useState(0);
   const [jackpot, setJackpot] = useState(10000);
   const [winChance, setWinChance] = useState(0);
+  const [lastWin, setLastWin] = useState(0);
   const { user } = useSupabaseAuth();
-  const spinAudioRef = useRef(new Audio('/sounds/spin.mp3'));
-  const winAudioRef = useRef(new Audio('/sounds/win.mp3'));
+  
+  const spinSound = useRef(new Howl({ src: ['/sounds/spin.mp3'] }));
+  const winSound = useRef(new Howl({ src: ['/sounds/win.mp3'] }));
+  const jackpotSound = useRef(new Howl({ src: ['/sounds/jackpot.mp3'] }));
 
   const symbols = [
     { symbol: '🍒', value: 1, weight: 20 },
@@ -102,7 +106,7 @@ const SlotMachine = ({ slot, onClose }) => {
 
     setSpinning(true);
     setResult('');
-    spinAudioRef.current.play();
+    spinSound.current.play();
     const spinDuration = 2000;
     const intervalDuration = 100;
     let spins = 0;
@@ -128,6 +132,11 @@ const SlotMachine = ({ slot, onClose }) => {
     updateBalance(balance - bet);
     updateJackpot(jackpot + bet * 0.01);
   }, [balance, bet, autoPlay, autoPlayCount, jackpot]);
+
+  const playWinAnimation = (winAmount) => {
+    setLastWin(winAmount);
+    setTimeout(() => setLastWin(0), 3000);
+  };
 
   useEffect(() => {
     if (autoPlay && autoPlayCount > 0 && !spinning) {
@@ -157,20 +166,23 @@ const SlotMachine = ({ slot, onClose }) => {
         winAmount = jackpot;
         setResult(`MEGA JACKPOT! You win ${winAmount} coins!`);
         updateJackpot(10000); // Reset jackpot after win
+        jackpotSound.current.play();
       } else {
         winAmount = bet * reelSymbols[0].value * 3;
         setResult(`Jackpot! You win ${winAmount} coins!`);
+        winSound.current.play();
       }
     } else if (reelSymbols[0].symbol === reelSymbols[1].symbol || reelSymbols[1].symbol === reelSymbols[2].symbol) {
       winAmount = bet * Math.max(reelSymbols[0].value, reelSymbols[1].value, reelSymbols[2].value);
       setResult(`Nice! You win ${winAmount} coins!`);
+      winSound.current.play();
     } else {
       setResult('Try again!');
     }
 
     if (winAmount > 0) {
-      winAudioRef.current.play();
       updateBalance(balance + winAmount);
+      playWinAnimation(winAmount);
     }
 
     // Record game history
@@ -233,6 +245,18 @@ const SlotMachine = ({ slot, onClose }) => {
               ))}
             </div>
           </div>
+          <AnimatePresence>
+            {lastWin > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold text-yellow-400 z-10"
+              >
+                +{lastWin} coins!
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="flex justify-between items-center mt-4 mb-2">
             <div className="flex items-center">
               <span className="mr-2">Bet:</span>
