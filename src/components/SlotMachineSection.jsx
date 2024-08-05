@@ -7,9 +7,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import SlotMachine from './SlotMachine';
 import { supabase } from '@/integrations/supabase';
 
-const SlotMachineSection = () => {
+const SlotMachineSection = ({ onSelectSlot }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSlot, setSelectedSlot] = useState(null);
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,12 +60,12 @@ const SlotMachineSection = () => {
                   <TooltipTrigger asChild>
                     <div 
                       className="bg-gray-800 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group transform hover:scale-105"
-                      onClick={() => setSelectedSlot(slot)}
+                      onClick={() => onSelectSlot(slot)}
                     >
                       <div className="relative">
                         <img src={slot.image} alt={slot.name} className="w-full h-40 object-cover" />
                         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={() => setSelectedSlot(slot)}>Play Now</Button>
+                          <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={(e) => { e.stopPropagation(); onSelectSlot(slot); }}>Play Now</Button>
                         </div>
                         <Badge className="absolute top-2 right-2 bg-blue-500">{slot.rtp}% RTP</Badge>
                       </div>
@@ -92,12 +91,6 @@ const SlotMachineSection = () => {
           </div>
         )}
       </div>
-      {selectedSlot && (
-        <SlotMachine
-          slot={selectedSlot}
-          onClose={() => setSelectedSlot(null)}
-        />
-      )}
     </section>
   );
 };

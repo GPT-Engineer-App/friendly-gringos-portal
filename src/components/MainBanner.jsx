@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
-const MainBanner = () => {
+const MainBanner = ({ onPlayNow }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     {
@@ -64,7 +64,7 @@ const MainBanner = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <Button size="lg" className="bg-green-500 hover:bg-green-600">
+              <Button size="lg" className="bg-green-500 hover:bg-green-600" onClick={onPlayNow}>
                 Play Now
               </Button>
             </motion.div>
