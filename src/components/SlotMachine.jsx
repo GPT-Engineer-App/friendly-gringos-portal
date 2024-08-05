@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 
 const SlotMachine = ({ slot, onClose }) => {
-  const [reels, setReels] = useState([0, 0, 0]);
+  const [reels, setReels] = useState([0, 0, 0, 0, 0]);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState('');
   const [balance, setBalance] = useState(1000);
@@ -17,27 +17,10 @@ const SlotMachine = ({ slot, onClose }) => {
   const [autoPlayCount, setAutoPlayCount] = useState(0);
   const { user } = useSupabaseAuth();
 
-  const symbols = {
-    science: ['⚛', '🧬', '🔬', '🧪', '📊', '💡'],
-    fantasy: ['🐉', '🦄', '🧙‍♂️', '🧝‍♀️', '🏰', '🔮'],
-    technology: ['💾', '🕹️', '👾', '🖥️', '📱', '🤖'],
-    food: ['🍕', '🍔', '🍣', '🍰', '🍷', '🍳'],
-    space: ['🚀', '👽', '🛸', '🌠', '🪐', '🌌'],
-    steampunk: ['⚙️', '🎩', '🔧', '🕰️', '🎈', '🔍'],
-    modern: ['😎', '🤑', '🎉', '💯', '🔥', '💖'],
-    prehistoric: ['🦕', '🦖', '🌋', '🍖', '🦴', '🌿'],
-  };
-
-  const colors = {
-    science: ['#1a237e', '#283593', '#3f51b5'],
-    fantasy: ['#4a148c', '#6a1b9a', '#7b1fa2'],
-    technology: ['#004d40', '#00695c', '#00796b'],
-    food: ['#e65100', '#ef6c00', '#f57c00'],
-    space: ['#1a237e', '#283593', '#3f51b5'],
-    steampunk: ['#3e2723', '#4e342e', '#5d4037'],
-    modern: ['#880e4f', '#ad1457', '#c2185b'],
-    prehistoric: ['#1b5e20', '#2e7d32', '#43a047'],
-  };
+  const symbols = [
+    '🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣', '🃏',
+    '🍀', '🌟', '🎰', '💰', '🎲', '🃏', '👑', '🦁'
+  ];
 
   useEffect(() => {
     if (user) {
@@ -84,7 +67,7 @@ const SlotMachine = ({ slot, onClose }) => {
     let spins = 0;
 
     const spinInterval = setInterval(() => {
-      setReels(reels.map(() => Math.floor(Math.random() * symbols[slot.theme].length)));
+      setReels(reels.map(() => Math.floor(Math.random() * symbols.length)));
       spins++;
 
       if (spins * intervalDuration >= spinDuration) {
@@ -112,12 +95,20 @@ const SlotMachine = ({ slot, onClose }) => {
 
   const checkResult = () => {
     let winAmount = 0;
-    if (reels[0] === reels[1] && reels[1] === reels[2]) {
-      winAmount = bet * 10;
+    const uniqueSymbols = new Set(reels);
+    
+    if (uniqueSymbols.size === 1) {
+      winAmount = bet * 50; // Jackpot for all 5 symbols matching
       setResult(`Jackpot! You win ${winAmount} coins!`);
-    } else if (reels[0] === reels[1] || reels[1] === reels[2] || reels[0] === reels[2]) {
-      winAmount = bet * 2;
-      setResult(`Two of a kind! You win ${winAmount} coins!`);
+    } else if (uniqueSymbols.size === 2) {
+      winAmount = bet * 10; // Big win for 4 matching symbols
+      setResult(`Big Win! You win ${winAmount} coins!`);
+    } else if (uniqueSymbols.size === 3) {
+      winAmount = bet * 5; // Medium win for 3 matching symbols
+      setResult(`Nice! You win ${winAmount} coins!`);
+    } else if (uniqueSymbols.size === 4) {
+      winAmount = bet * 2; // Small win for 2 matching symbols
+      setResult(`You win ${winAmount} coins!`);
     } else {
       setResult('Try again!');
     }
@@ -137,51 +128,29 @@ const SlotMachine = ({ slot, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] bg-gray-900 text-white">
         <DialogHeader>
-          <DialogTitle>{slot.name}</DialogTitle>
+          <DialogTitle className="text-2xl">{slot.name}</DialogTitle>
         </DialogHeader>
         <div className="mt-4">
           <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
-            <svg viewBox="0 0 300 200" className="w-full h-full">
-              {/* Slot machine body */}
-              <rect width="300" height="200" fill={colors[slot.theme][0]} />
-              <rect x="20" y="20" width="260" height="160" fill={colors[slot.theme][1]} rx="10" />
-              
-              {/* Reels */}
-              {[0, 1, 2].map((i) => (
-                <g key={i} transform={`translate(${70 + i * 60}, 50)`}>
-                  <rect width="50" height="100" fill="white" stroke={colors[slot.theme][2]} strokeWidth="4" />
-                  <motion.text
-                    x="25"
-                    y="65"
-                    fontSize="40"
-                    textAnchor="middle"
-                    fill={colors[slot.theme][2]}
-                    animate={{ y: spinning ? [0, 100, 0] : 0 }}
-                    transition={{ duration: 0.5, repeat: spinning ? Infinity : 0, ease: "linear" }}
-                  >
-                    {symbols[slot.theme][reels[i]]}
-                  </motion.text>
-                </g>
+            <div className="flex justify-around items-center h-full">
+              {reels.map((reel, index) => (
+                <motion.div
+                  key={index}
+                  className="text-6xl"
+                  animate={{ y: spinning ? [0, 100, 0] : 0 }}
+                  transition={{ duration: 0.5, repeat: spinning ? Infinity : 0, ease: "linear" }}
+                >
+                  {symbols[reel]}
+                </motion.div>
               ))}
-
-              {/* Lever */}
-              <motion.g
-                animate={{ rotate: spinning ? 45 : 0 }}
-                transition={{ duration: 0.5 }}
-                style={{ transformOrigin: '270px 70px' }}
-              >
-                <rect x="260" y="80" width="20" height="100" fill={colors[slot.theme][2]} rx="10" />
-                <circle cx="270" cy="70" r="15" fill="red" />
-              </motion.g>
-            </svg>
+            </div>
           </div>
           <div className="flex justify-between items-center mt-4 mb-2">
-            <div>
-              <label htmlFor="bet" className="mr-2">Bet:</label>
+            <div className="flex items-center">
+              <span className="mr-2">Bet:</span>
               <Slider
-                id="bet"
                 min={1}
                 max={100}
                 step={1}
@@ -193,8 +162,8 @@ const SlotMachine = ({ slot, onClose }) => {
             </div>
             <div>Balance: {balance} coins</div>
           </div>
-          <div className="flex space-x-2 mt-2 mb-2">
-            <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1">
+          <div className="flex space-x-2 mt-4">
+            <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1 bg-green-500 hover:bg-green-600">
               {spinning ? 'Spinning...' : 'Spin'}
             </Button>
             <Button
@@ -208,8 +177,8 @@ const SlotMachine = ({ slot, onClose }) => {
               {autoPlay ? 'Stop Auto' : 'Auto Play'}
             </Button>
           </div>
-          {autoPlay && <p className="text-center text-sm">Auto spins remaining: {autoPlayCount}</p>}
-          {result && <p className="text-center font-bold mt-2">{result}</p>}
+          {autoPlay && <p className="text-center text-sm mt-2">Auto spins remaining: {autoPlayCount}</p>}
+          {result && <p className="text-center font-bold mt-4 text-xl">{result}</p>}
         </div>
       </DialogContent>
     </Dialog>
