@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -193,7 +195,21 @@ const SlotMachine = ({ slot, onClose }) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] bg-gray-900 text-white">
         <DialogHeader>
-          <DialogTitle className="text-2xl">{slot.name}</DialogTitle>
+          <DialogTitle className="text-2xl flex items-center justify-between">
+            {slot.name}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge variant="secondary" className="ml-2">
+                    {slot.rtp}% RTP
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Return to Player: {slot.rtp}%</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
           <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
@@ -221,8 +237,8 @@ const SlotMachine = ({ slot, onClose }) => {
             <div className="flex items-center">
               <span className="mr-2">Bet:</span>
               <Slider
-                min={1}
-                max={100}
+                min={slot.min_bet}
+                max={slot.max_bet}
                 step={1}
                 value={[bet]}
                 onValueChange={(value) => setBet(value[0])}
@@ -234,7 +250,16 @@ const SlotMachine = ({ slot, onClose }) => {
           </div>
           <div className="flex justify-between items-center mt-2 mb-4">
             <div>Jackpot: {jackpot} coins</div>
-            <div>Win Chance: {winChance.toFixed(2)}%</div>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="cursor-help">Win Chance: {winChance.toFixed(2)}%</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Based on RTP and current jackpot</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <Progress value={winChance} className="mb-4" />
           <div className="flex space-x-2 mt-4">

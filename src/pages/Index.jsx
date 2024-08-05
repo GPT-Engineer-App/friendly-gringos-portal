@@ -5,6 +5,7 @@ import JackpotSection from '../components/JackpotSection';
 import SlotMachineSection from '../components/SlotMachineSection';
 import LiveCasinoSection from '../components/LiveCasinoSection';
 import VIPSection from '../components/VIPSection';
+import TournamentSection from '../components/TournamentSection';
 import Footer from '../components/Footer';
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
         <MainBanner />
         <JackpotSection />
         <SlotMachineSection />
+        <TournamentSection />
         <LiveCasinoSection />
         <VIPSection />
       </main>
