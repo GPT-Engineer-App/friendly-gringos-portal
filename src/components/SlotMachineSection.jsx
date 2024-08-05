@@ -12,7 +12,7 @@ const SlotMachineSection = () => {
     { name: 'Starburst', category: 'Video', image: 'https://example.com/starburst.jpg' },
     { name: 'Mega Moolah', category: 'Progressive', image: 'https://example.com/mega-moolah.jpg' },
     { name: 'Book of Dead', category: 'Video', image: 'https://example.com/book-of-dead.jpg' },
-    { name: 'Gonzo's Quest', category: 'Video', image: 'https://example.com/gonzos-quest.jpg' },
+    { name: "Gonzo's Quest", category: 'Video', image: 'https://example.com/gonzos-quest.jpg' },
     { name: 'Fruit Fiesta', category: 'Classic', image: 'https://example.com/fruit-fiesta.jpg' },
     { name: 'Bonanza', category: 'Megaways', image: 'https://example.com/bonanza.jpg' },
   ];
