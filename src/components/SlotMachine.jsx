@@ -8,6 +8,16 @@ const SlotMachine = ({ slot, onClose }) => {
   const [result, setResult] = useState('');
 
   const symbols = ['♠', '♥', '♦', '♣', '★', '7'];
+  const colors = {
+    space: ['#1a237e', '#283593', '#3f51b5'],
+    adventure: ['#33691e', '#558b2f', '#7cb342'],
+    nature: ['#1b5e20', '#2e7d32', '#43a047'],
+    cyberpunk: ['#b71c1c', '#c62828', '#d32f2f'],
+    history: ['#4e342e', '#5d4037', '#6d4c41'],
+    food: ['#e65100', '#ef6c00', '#f57c00'],
+    underwater: ['#01579b', '#0277bd', '#0288d1'],
+    western: ['#bf360c', '#d84315', '#e64a19'],
+  };
 
   const spin = () => {
     setSpinning(true);

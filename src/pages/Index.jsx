@@ -3,6 +3,8 @@ import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
 import JackpotSection from '../components/JackpotSection';
 import SlotMachineSection from '../components/SlotMachineSection';
+import LiveCasinoSection from '../components/LiveCasinoSection';
+import VIPSection from '../components/VIPSection';
 import Footer from '../components/Footer';
 
 const Index = () => {
@@ -13,6 +15,8 @@ const Index = () => {
         <MainBanner />
         <JackpotSection />
         <SlotMachineSection />
+        <LiveCasinoSection />
+        <VIPSection />
       </main>
       <Footer />
     </div>
