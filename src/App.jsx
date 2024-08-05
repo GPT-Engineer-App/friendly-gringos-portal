@@ -38,5 +38,6 @@ const App = () => {
     </QueryClientProvider>
   </ErrorBoundary>
 );
+}
 
 export default App;
