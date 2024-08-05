@@ -10,7 +10,9 @@ const Promotions = () => {
       <main className="flex-grow">
         <div className="relative">
           <img src="/images/promotions-banner.jpg" alt="Promotions" className="w-full h-64 object-cover" />
-          <h1 className="text-3xl font-bold text-center absolute inset-0 flex items-center justify-center text-white bg-black bg-opacity-50">Our Promotions</h1>
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <h1 className="text-3xl font-bold text-center text-white">Our Promotions</h1>
+          </div>
         </div>
         <PromotionsSection />
       </main>
