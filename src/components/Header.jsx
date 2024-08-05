@@ -27,28 +27,12 @@ const Header = () => {
   return (
     <header className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
-        <div className="text-2xl font-bold">Matrix Casino</div>
-        <nav>
-          <ul className="flex space-x-4">
-            {navItems.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className={`hover:text-gray-300 ${
-                    location.pathname === item.to ? 'font-bold' : ''
-                  }`}
-                >
-                  {item.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="space-x-2">
+        <div className="text-xl md:text-2xl font-bold">Matrix Slots</div>
+        <div className="flex items-center space-x-2">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer">
+                <Avatar className="cursor-pointer w-8 h-8 md:w-10 md:h-10">
                   <AvatarImage src={user.user_metadata?.avatar_url} alt={user.user_metadata?.name} />
                   <AvatarFallback>{user.user_metadata?.name?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -63,14 +47,9 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button onClick={() => setIsAuthModalOpen(true)} variant="outline" className="text-white border-white hover:bg-white hover:text-gray-800">
-                Login
-              </Button>
-              <Button onClick={() => setIsAuthModalOpen(true)} className="bg-green-500 hover:bg-green-600">
-                Register
-              </Button>
-            </>
+            <Button onClick={() => setIsAuthModalOpen(true)} className="bg-green-500 hover:bg-green-600 text-sm md:text-base">
+              Login / Register
+            </Button>
           )}
         </div>
       </div>
