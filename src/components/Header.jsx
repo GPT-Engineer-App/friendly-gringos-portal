@@ -30,9 +30,8 @@ const Header = () => {
         <nav>
           <ul className="flex space-x-4">
             <li><Link to="/" className="hover:text-gray-300">Home</Link></li>
-            <li><a href="#games" className="hover:text-gray-300">Games</a></li>
+            <li><a href="#slots" className="hover:text-gray-300">Slots</a></li>
             <li><a href="#promotions" className="hover:text-gray-300">Promotions</a></li>
-            <li><a href="#vip" className="hover:text-gray-300">VIP</a></li>
             <li><a href="#support" className="hover:text-gray-300">Support</a></li>
           </ul>
         </nav>
