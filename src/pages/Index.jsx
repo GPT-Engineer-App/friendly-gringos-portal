@@ -24,16 +24,21 @@ const Index = () => {
   }, []);
 
   const fetchFeaturedSlots = async () => {
-    const { data, error } = await supabase
-      .from('slots')
-      .select('*')
-      .order('popularity', { ascending: false })
-      .limit(5);
+    try {
+      const { data, error } = await supabase
+        .from('slots')
+        .select('*')
+        .order('popularity', { ascending: false })
+        .limit(5);
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      setFeaturedSlots(data || []);
+    } catch (error) {
       console.error('Error fetching featured slots:', error);
-    } else {
-      setFeaturedSlots(data);
+      toast.error('Failed to load featured slots. Please try again later.');
     }
   };
 

@@ -39,10 +39,6 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     }
   };
 
-  useEffect(() => {
-    fetchSlots();
-  }, []);
-
   const filteredSlots = slots.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     slot.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
