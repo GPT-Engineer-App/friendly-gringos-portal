@@ -8,6 +8,8 @@ import TournamentSection from '../components/TournamentSection';
 import PromotionsSection from '../components/PromotionsSection';
 import Footer from '../components/Footer';
 import SlotMachine from '../components/SlotMachine';
+import NewsSection from '../components/NewsSection';
+import LeaderboardSection from '../components/LeaderboardSection';
 import { supabase } from '@/integrations/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from "sonner";
@@ -57,6 +59,8 @@ const Index = () => {
         <TournamentSection />
         <PromotionsSection />
         <VIPSection />
+        <NewsSection />
+        <LeaderboardSection />
       </main>
       <Footer />
       {selectedSlot && (

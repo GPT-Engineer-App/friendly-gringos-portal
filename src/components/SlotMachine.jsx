@@ -14,6 +14,7 @@ import confetti from 'canvas-confetti';
 import { useSpring, animated } from 'react-spring';
 
 const SlotMachine = ({ slot, onClose }) => {
+  const [theme, setTheme] = useState('default');
   const [reels, setReels] = useState([0, 0, 0]);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState('');
@@ -274,9 +275,32 @@ const SlotMachine = ({ slot, onClose }) => {
     setWinChance(theoreticalWinChance * 100);
   }, []);
 
+  const themes = {
+    default: {
+      background: 'bg-gray-900',
+      reelBackground: 'bg-gray-800',
+      text: 'text-white',
+      button: 'bg-green-500 hover:bg-green-600',
+    },
+    neon: {
+      background: 'bg-black',
+      reelBackground: 'bg-gray-900',
+      text: 'text-neon-pink',
+      button: 'bg-neon-blue hover:bg-neon-purple',
+    },
+    retro: {
+      background: 'bg-retro-beige',
+      reelBackground: 'bg-retro-brown',
+      text: 'text-retro-red',
+      button: 'bg-retro-orange hover:bg-retro-yellow',
+    },
+  };
+
+  const currentTheme = themes[theme];
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-gray-900 text-white">
+      <DialogContent className={`sm:max-w-[600px] ${currentTheme.background} ${currentTheme.text}`}>
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center justify-between">
             {slot.name}
@@ -295,7 +319,20 @@ const SlotMachine = ({ slot, onClose }) => {
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <div className="relative w-full h-64 bg-gray-800 rounded-lg overflow-hidden">
+          <div className="mb-4">
+            <label htmlFor="theme-select" className="block mb-2">Select Theme:</label>
+            <select
+              id="theme-select"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              className="w-full p-2 rounded bg-gray-700 text-white"
+            >
+              <option value="default">Default</option>
+              <option value="neon">Neon</option>
+              <option value="retro">Retro</option>
+            </select>
+          </div>
+          <div className={`relative w-full h-64 ${currentTheme.reelBackground} rounded-lg overflow-hidden`}>
             <div className="flex justify-around items-center h-full">
               {reels.map((reelIndex, index) => (
                 <div key={index} className="reel w-1/3 h-full overflow-hidden">
@@ -357,7 +394,7 @@ const SlotMachine = ({ slot, onClose }) => {
           </div>
           <Progress value={winChance} className="mb-4" />
           <div className="flex space-x-2 mt-4">
-            <Button onClick={spin} disabled={spinning || autoPlay} className="flex-1 bg-green-500 hover:bg-green-600">
+            <Button onClick={spin} disabled={spinning || autoPlay} className={`flex-1 ${currentTheme.button}`}>
               {spinning ? 'Spinning...' : freeSpins > 0 ? `Free Spin (${freeSpins})` : 'Spin'}
             </Button>
             <Button
@@ -366,7 +403,7 @@ const SlotMachine = ({ slot, onClose }) => {
                 setAutoPlayCount(autoPlay ? 0 : 10);
               }}
               variant={autoPlay ? "destructive" : "secondary"}
-              className="flex-1"
+              className={`flex-1 ${autoPlay ? 'bg-red-500 hover:bg-red-600' : currentTheme.button}`}
             >
               {autoPlay ? 'Stop Auto' : 'Auto Play'}
             </Button>
