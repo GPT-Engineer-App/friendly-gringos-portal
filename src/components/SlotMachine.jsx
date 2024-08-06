@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Howl } from 'howler';
 import confetti from 'canvas-confetti';
+import { useSpring, animated } from 'react-spring';
 
 const SlotMachine = ({ slot, onClose }) => {
   const [reels, setReels] = useState([0, 0, 0]);
@@ -28,6 +29,19 @@ const SlotMachine = ({ slot, onClose }) => {
   const spinSound = useRef(new Howl({ src: ['/sounds/spin.mp3'] }));
   const winSound = useRef(new Howl({ src: ['/sounds/win.mp3'] }));
   const jackpotSound = useRef(new Howl({ src: ['/sounds/jackpot.mp3'] }));
+  const coinSound = useRef(new Howl({ src: ['/sounds/coin.mp3'] }));
+
+  const [coinAnimation, setCoinAnimation] = useState(false);
+  const coinSpring = useSpring({
+    to: async (next) => {
+      if (coinAnimation) {
+        await next({ y: 0, opacity: 1 });
+        await next({ y: -50, opacity: 0 });
+      }
+    },
+    from: { y: 50, opacity: 0 },
+    reset: true,
+  });
 
   const symbols = [
     { symbol: '🍒', value: 1, weight: 20 },
@@ -158,6 +172,8 @@ const SlotMachine = ({ slot, onClose }) => {
 
     updateBalance(balance - bet);
     updateJackpot(jackpot + bet * 0.01);
+    setCoinAnimation(true);
+    coinSound.current.play();
   }, [balance, bet, autoPlay, autoPlayCount, jackpot]);
 
   const playWinAnimation = (winAmount) => {
@@ -306,6 +322,9 @@ const SlotMachine = ({ slot, onClose }) => {
               </motion.div>
             )}
           </AnimatePresence>
+          <animated.div style={coinSpring} className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <span className="text-4xl">🪙</span>
+          </animated.div>
           <div className="flex justify-between items-center mt-4 mb-2">
             <div className="flex items-center">
               <span className="mr-2">Bet:</span>
