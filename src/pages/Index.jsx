@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
 const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
@@ -71,12 +72,34 @@ const Index = () => {
         <Suspense fallback={<LoadingSpinner />}>
           <MainBanner onPlayNow={handlePlayNow} featuredSlot={featuredSlots[0]} />
           <JackpotSection />
-          <SlotMachineSection onSelectSlot={setSelectedSlot} featuredSlots={featuredSlots} />
-          <TournamentSection />
-          <PromotionsSection />
-          <VIPSection />
-          <NewsSection />
-          <LeaderboardSection />
+          <Tabs defaultValue="slots" className="w-full mt-8">
+            <TabsList className="w-full justify-center">
+              <TabsTrigger value="slots">Slots</TabsTrigger>
+              <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
+              <TabsTrigger value="promotions">Promotions</TabsTrigger>
+              <TabsTrigger value="vip">VIP</TabsTrigger>
+              <TabsTrigger value="news">News</TabsTrigger>
+              <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+            </TabsList>
+            <TabsContent value="slots">
+              <SlotMachineSection onSelectSlot={setSelectedSlot} featuredSlots={featuredSlots} />
+            </TabsContent>
+            <TabsContent value="tournaments">
+              <TournamentSection />
+            </TabsContent>
+            <TabsContent value="promotions">
+              <PromotionsSection />
+            </TabsContent>
+            <TabsContent value="vip">
+              <VIPSection />
+            </TabsContent>
+            <TabsContent value="news">
+              <NewsSection />
+            </TabsContent>
+            <TabsContent value="leaderboard">
+              <LeaderboardSection />
+            </TabsContent>
+          </Tabs>
         </Suspense>
       </main>
       <Footer />

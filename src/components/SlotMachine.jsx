@@ -15,6 +15,7 @@ import { useSpring, animated } from 'react-spring';
 import MiniGame from './MiniGame';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const SlotMachine = ({ slot, onClose }) => {
   const [theme, setTheme] = useState('default');
@@ -28,6 +29,7 @@ const SlotMachine = ({ slot, onClose }) => {
   const [jackpot, setJackpot] = useState(10000);
   const [winChance, setWinChance] = useState(0);
   const [lastWin, setLastWin] = useState(0);
+  const [gameHistory, setGameHistory] = useState([]);
   const { user } = useSupabaseAuth();
   
   const spinSound = useRef(new Howl({ src: ['/sounds/spin.mp3'] }));
@@ -96,8 +98,24 @@ const SlotMachine = ({ slot, onClose }) => {
     if (user) {
       fetchBalance();
       fetchJackpot();
+      fetchGameHistory();
     }
   }, [user]);
+
+  const fetchGameHistory = async () => {
+    const { data, error } = await supabase
+      .from('game_history')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('played_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching game history:', error);
+    } else {
+      setGameHistory(data);
+    }
+  };
 
   const fetchBalance = async () => {
     const { data, error } = await supabase
@@ -269,14 +287,18 @@ const SlotMachine = ({ slot, onClose }) => {
     setMultiplier(newMultiplier);
 
     // Record game history
-    supabase.from('game_history').insert({
+    const newGameHistory = {
       user_id: user.id,
       game_name: slot.name,
       bet_amount: bet,
       win_amount: winAmount,
       result: winAmount > 0 ? `Won ${winAmount}` : 'Lost',
       played_at: new Date().toISOString(),
-    });
+      balance_after: balance + winAmount - bet,
+    };
+
+    supabase.from('game_history').insert(newGameHistory);
+    setGameHistory(prevHistory => [newGameHistory, ...prevHistory]);
   };
 
   useEffect(() => {
@@ -455,8 +477,20 @@ const SlotMachine = ({ slot, onClose }) => {
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-2">Your Statistics</h3>
                 <p><strong>Total Spins:</strong> {gameHistory.length}</p>
-                <p><strong>Biggest Win:</strong> {Math.max(...gameHistory.map(game => game.win_amount))} coins</p>
-                <p><strong>Win Rate:</strong> {(gameHistory.filter(game => game.win_amount > 0).length / gameHistory.length * 100).toFixed(2)}%</p>
+                <p><strong>Biggest Win:</strong> {Math.max(...gameHistory.map(game => game.win_amount), 0)} coins</p>
+                <p><strong>Win Rate:</strong> {gameHistory.length > 0 ? (gameHistory.filter(game => game.win_amount > 0).length / gameHistory.length * 100).toFixed(2) : 0}%</p>
+                <h4 className="text-md font-semibold mt-4 mb-2">Balance History</h4>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={gameHistory.slice().reverse()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="played_at" tickFormatter={(tick) => new Date(tick).toLocaleDateString()} />
+                      <YAxis />
+                      <RechartsTooltip />
+                      <Line type="monotone" dataKey="balance_after" stroke="#8884d8" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
                 <h4 className="text-md font-semibold mt-4 mb-2">Recent Wins:</h4>
                 <ul className="list-disc pl-5">
                   {gameHistory.filter(game => game.win_amount > 0).slice(0, 5).map((game, index) => (

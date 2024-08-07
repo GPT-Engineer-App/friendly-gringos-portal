@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -11,10 +11,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { navItems } from '@/nav-items';
+import { supabase } from '@/integrations/supabase';
 
 const Header = () => {
   const { user, logout } = useSupabaseAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      fetchBalance();
+    }
+  }, [user]);
+
+  const fetchBalance = async () => {
+    const { data, error } = await supabase
+      .from('user_balance')
+      .select('balance')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching balance:', error);
+    } else {
+      setBalance(data.balance);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -28,7 +50,12 @@ const Header = () => {
     <header className="bg-gray-800 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="text-xl md:text-2xl font-bold">Matrix Slots</div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
+          {user && (
+            <div className="text-sm md:text-base">
+              Balance: {balance} coins
+            </div>
+          )}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
