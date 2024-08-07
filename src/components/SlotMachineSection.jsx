@@ -16,38 +16,43 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 12;
 
-  const fetchSlots = useCallback(async () => {
-    console.log('Fetching slots...');
-    const { data, error } = await supabase
-      .from('slots')
-      .select('*')
-      .order('popularity', { ascending: false });
+  const [slots, setSlots] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState(null);
 
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
+  useEffect(() => {
+    const fetchSlots = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('slots')
+          .select('*')
+          .order('popularity', { ascending: false });
 
-    console.log('Slots fetched:', data);
+        if (error) throw error;
 
-    if (!data || data.length === 0) {
-      console.log('No slots available');
-      return [];
-    }
+        console.log('Slots fetched:', data);
+        setSlots(data || []);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching slots:', error);
+        setIsError(true);
+        setError(error);
+        setIsLoading(false);
+        toast.error('Failed to load slots. Please try again.');
+      }
+    };
 
-    return data;
+    fetchSlots();
   }, []);
 
-  const { data: slots, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['slots'],
-    queryFn: fetchSlots,
-    retry: 3,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.error('Query error:', error);
-      toast.error('Failed to load slots. Please try again.');
-    },
-  });
+  const refetch = () => {
+    setIsLoading(true);
+    setIsError(false);
+    setError(null);
+    fetchSlots();
+  };
 
   useEffect(() => {
     if (slots) {

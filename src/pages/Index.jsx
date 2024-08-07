@@ -26,31 +26,44 @@ const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const { user } = useSupabaseAuth();
 
-  const fetchFeaturedSlots = async () => {
-    const { data, error } = await supabase
-      .from('slots')
-      .select('*')
-      .order('popularity', { ascending: false })
-      .limit(5);
+  const [featuredSlots, setFeaturedSlots] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState(null);
 
-    if (error) {
-      console.error('Error fetching featured slots:', error);
-      throw error;
-    }
-    console.log('Fetched featured slots:', data);
-    return data;
+  useEffect(() => {
+    const fetchFeaturedSlots = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('slots')
+          .select('*')
+          .order('popularity', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        console.log('Fetched featured slots:', data);
+        setFeaturedSlots(data || []);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching featured slots:', error);
+        setIsError(true);
+        setError(error);
+        setIsLoading(false);
+        toast.error('Failed to load featured slots. Please try again.');
+      }
+    };
+
+    fetchFeaturedSlots();
+  }, []);
+
+  const refetch = () => {
+    setIsLoading(true);
+    setIsError(false);
+    setError(null);
+    fetchFeaturedSlots();
   };
-
-  const { data: featuredSlots, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['featuredSlots'],
-    queryFn: fetchFeaturedSlots,
-    retry: 3,
-    retryDelay: 1000,
-    onError: (error) => {
-      console.error('Query error:', error);
-      toast.error('Failed to load featured slots. Please try again.');
-    },
-  });
 
   useEffect(() => {
     if (isError) {
