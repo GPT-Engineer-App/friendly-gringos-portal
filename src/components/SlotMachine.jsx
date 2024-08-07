@@ -301,14 +301,14 @@ const SlotMachine = ({ slot, onClose }) => {
 
     supabase.from('game_history').insert(newGameHistory);
     setGameHistory(prevHistory => [newGameHistory, ...prevHistory]);
-  };
+  }, [reels, symbols, freeSpins, multiplier, jackpot, bet, balance, slot.name, user.id, updateBalance, updateJackpot, playWinAnimation]);
 
   useEffect(() => {
     const totalValue = symbols.reduce((sum, symbol) => sum + symbol.value * symbol.weight, 0);
     const averageValue = totalValue / symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
     const theoreticalWinChance = (averageValue * 3) / 100; // Simplified calculation
     setWinChance(theoreticalWinChance * 100);
-  }, []);
+  }, [symbols]);
 
   const themes = {
     default: {
