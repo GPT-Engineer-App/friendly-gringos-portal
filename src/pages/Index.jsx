@@ -41,7 +41,14 @@ const Index = () => {
         throw error;
       }
 
-      setFeaturedSlots(data || []);
+      if (!data || data.length === 0) {
+        console.warn('No featured slots data available');
+        toast.warning('No featured slots available at the moment.');
+        return;
+      }
+
+      console.log('Fetched featured slots:', data);
+      setFeaturedSlots(data);
     } catch (error) {
       console.error('Error fetching featured slots:', error);
       toast.error('Failed to load featured slots. Please try again later.');

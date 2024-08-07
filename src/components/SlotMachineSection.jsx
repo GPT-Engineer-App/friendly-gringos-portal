@@ -35,7 +35,12 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
         throw error;
       }
 
-      setSlots(data || []);
+      if (!data || data.length === 0) {
+        throw new Error('No slots data available');
+      }
+
+      console.log('Fetched slots:', data);
+      setSlots(data);
     } catch (error) {
       console.error('Error fetching slots:', error);
       setError('Failed to load slots. Please try again.');
