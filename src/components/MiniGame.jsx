@@ -8,12 +8,13 @@ const MiniGame = ({ onWin }) => {
   const [matchedPairs, setMatchedPairs] = useState([]);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const symbols = ['🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣', '🃏'];
+
   useEffect(() => {
     initializeGame();
   }, []);
 
   const initializeGame = () => {
-    const symbols = ['🍒', '🍋', '🍊', '🍇', '🔔', '💎', '7️⃣', '🃏'];
     const gameCards = [...symbols, ...symbols]
       .sort(() => Math.random() - 0.5)
       .map((symbol, index) => ({ id: index, symbol, isFlipped: false }));
