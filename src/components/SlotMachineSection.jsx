@@ -17,21 +17,32 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const slotsPerPage = 12;
 
   const fetchSlots = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('slots')
-      .select('*')
-      .order('popularity', { ascending: false });
+    console.log('Fetching slots...');
+    try {
+      const { data, error } = await supabase
+        .from('slots')
+        .select('*')
+        .order('popularity', { ascending: false });
 
-    if (error) throw error;
-
-    // Generate images for slots without an image
-    for (let slot of data) {
-      if (!slot.image) {
-        await generateAndStoreImage(slot);
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
       }
-    }
 
-    return data;
+      console.log('Slots fetched:', data);
+
+      // Generate images for slots without an image
+      for (let slot of data) {
+        if (!slot.image) {
+          await generateAndStoreImage(slot);
+        }
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in fetchSlots:', error);
+      throw error;
+    }
   }, []);
 
   const { data: slots, isLoading, isError, error, refetch } = useQuery({
@@ -39,9 +50,13 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     queryFn: fetchSlots,
     retry: 3,
     retryDelay: 1000,
+    onError: (error) => {
+      console.error('Query error:', error);
+    },
   });
 
   const generateAndStoreImage = async (slot) => {
+    console.log('Generating image for slot:', slot.name);
     try {
       const response = await fetch("https://gptengineer.com/api/image-generation", {
         method: "POST",
@@ -57,11 +72,17 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
         const imageUrl = data.imageUrl;
 
         // Store in database
-        await supabase
+        const { error } = await supabase
           .from('slots')
           .update({ image: imageUrl })
           .eq('id', slot.id);
 
+        if (error) {
+          console.error('Error updating slot image:', error);
+          throw error;
+        }
+
+        console.log(`Generated image for ${slot.name}`);
         toast.success(`Generated image for ${slot.name}`);
       } else {
         console.error('Error generating image:', data);
@@ -81,6 +102,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   }, [isError, error]);
 
   const handleRetrySlots = () => {
+    console.log('Retrying slot fetch...');
     refetch();
     toast.info('Retrying to load slots...');
   };
@@ -175,6 +197,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
             ) : isError ? (
               <div className="text-center text-white">
                 <p>Failed to load slots. Please try again.</p>
+                <p className="text-sm text-red-400 mt-2">Error: {error.message}</p>
                 <Button onClick={handleRetrySlots} className="mt-4">
                   Retry
                 </Button>
