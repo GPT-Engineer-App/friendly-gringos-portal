@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Howl } from 'howler';
 import confetti from 'canvas-confetti';
 import { useSpring, animated } from 'react-spring';
+import MiniGame from './MiniGame';
 
 const SlotMachine = ({ slot, onClose }) => {
   const [theme, setTheme] = useState('default');
@@ -59,6 +60,7 @@ const SlotMachine = ({ slot, onClose }) => {
   const [freeSpins, setFreeSpins] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
   const [bonusGame, setBonusGame] = useState(false);
+  const [showMiniGame, setShowMiniGame] = useState(false);
 
   const [reelHeight, setReelHeight] = useState(0);
 
@@ -75,6 +77,13 @@ const SlotMachine = ({ slot, onClose }) => {
 
     return () => window.removeEventListener('resize', updateReelHeight);
   }, []);
+
+  const handleMiniGameWin = () => {
+    const bonusAmount = Math.floor(Math.random() * 100) + 50;
+    updateBalance(balance + bonusAmount);
+    toast.success(`You won ${bonusAmount} coins in the mini-game!`);
+    setShowMiniGame(false);
+  };
 
   const getSymbolStyles = (index) => ({
     transform: `translateY(${-reelHeight * index}px)`,
@@ -433,6 +442,12 @@ const SlotMachine = ({ slot, onClose }) => {
             </div>
           </div>
         )}
+        {showMiniGame && (
+          <MiniGame onWin={handleMiniGameWin} />
+        )}
+        <Button onClick={() => setShowMiniGame(true)} className="mt-4 w-full">
+          Play Mini-Game
+        </Button>
       </DialogContent>
     </Dialog>
   );

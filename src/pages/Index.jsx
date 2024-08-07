@@ -1,20 +1,22 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
-import JackpotSection from '../components/JackpotSection';
-import SlotMachineSection from '../components/SlotMachineSection';
-import VIPSection from '../components/VIPSection';
-import TournamentSection from '../components/TournamentSection';
-import PromotionsSection from '../components/PromotionsSection';
 import Footer from '../components/Footer';
 import SlotMachine from '../components/SlotMachine';
-import NewsSection from '../components/NewsSection';
-import LeaderboardSection from '../components/LeaderboardSection';
 import { supabase } from '@/integrations/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import LoadingSpinner from '../components/LoadingSpinner';
+
+const JackpotSection = lazy(() => import('../components/JackpotSection'));
+const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
+const VIPSection = lazy(() => import('../components/VIPSection'));
+const TournamentSection = lazy(() => import('../components/TournamentSection'));
+const PromotionsSection = lazy(() => import('../components/PromotionsSection'));
+const NewsSection = lazy(() => import('../components/NewsSection'));
+const LeaderboardSection = lazy(() => import('../components/LeaderboardSection'));
+const LiveChatWidget = lazy(() => import('../components/LiveChatWidget'));
 
 const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -83,6 +85,9 @@ const Index = () => {
           onClose={() => setSelectedSlot(null)}
         />
       )}
+      <Suspense fallback={null}>
+        <LiveChatWidget />
+      </Suspense>
     </motion.div>
   );
 };
