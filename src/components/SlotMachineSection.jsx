@@ -26,21 +26,32 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     try {
       setLoading(true);
       setError(null);
+      console.log('Fetching slots...');
       const { data, error } = await supabase
         .from('slots')
         .select('*')
         .order('popularity', { ascending: false });
 
       if (error) {
+        console.error('Supabase error:', error);
         throw error;
       }
 
-      if (!data || data.length === 0) {
-        throw new Error('No slots data available');
+      console.log('Raw response:', data);
+
+      if (!data) {
+        console.error('No data returned from Supabase');
+        throw new Error('No data returned from the server');
       }
 
-      console.log('Fetched slots:', data);
-      setSlots(data);
+      if (data.length === 0) {
+        console.warn('No slots data available');
+        setSlots([]);
+        toast.warning('No slots available at the moment.');
+      } else {
+        console.log('Fetched slots:', data);
+        setSlots(data);
+      }
     } catch (error) {
       console.error('Error fetching slots:', error);
       setError('Failed to load slots. Please try again.');
@@ -148,6 +159,13 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
                 <p>{error}</p>
                 <Button onClick={handleRetry} className="mt-4">
                   Retry
+                </Button>
+              </div>
+            ) : slots.length === 0 ? (
+              <div className="text-center text-white">
+                <p>No slots available at the moment.</p>
+                <Button onClick={handleRetry} className="mt-4">
+                  Refresh
                 </Button>
               </div>
             ) : (
