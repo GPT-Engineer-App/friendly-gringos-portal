@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,15 +17,23 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 12;
 
-  const fetchSlots = async () => {
+  const fetchSlots = useCallback(async () => {
     const { data, error } = await supabase
       .from('slots')
       .select('*')
       .order('popularity', { ascending: false });
 
     if (error) throw error;
+
+    // Generate images for slots without an image
+    for (let slot of data) {
+      if (!slot.image) {
+        await generateAndStoreImage(slot);
+      }
+    }
+
     return data;
-  };
+  }, []);
 
   const { data: slots, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['slots'],
@@ -32,6 +41,38 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     retry: 3,
     retryDelay: 1000,
   });
+
+  const generateAndStoreImage = async (slot) => {
+    try {
+      const response = await fetch("https://gptengineer.com/api/image-generation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ prompt: `A slot machine themed ${slot.theme}` })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        const imageUrl = data.imageUrl;
+
+        // Store in database
+        await supabase
+          .from('slots')
+          .update({ image: imageUrl })
+          .eq('id', slot.id);
+
+        toast.success(`Generated image for ${slot.name}`);
+      } else {
+        console.error('Error generating image:', data);
+        toast.error(`Failed to generate image for ${slot.name}`);
+      }
+    } catch (error) {
+      console.error('Error in image generation process:', error);
+      toast.error(`Error in image generation process for ${slot.name}`);
+    }
+  };
 
   useEffect(() => {
     if (isError) {
