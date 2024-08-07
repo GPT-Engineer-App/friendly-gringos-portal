@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const MainBanner = ({ onPlayNow, featuredSlot }) => {
@@ -35,13 +35,15 @@ const MainBanner = ({ onPlayNow, featuredSlot }) => {
 
   return (
     <section className="relative h-[300px] md:h-[400px] overflow-hidden">
+      <AnimatePresence mode="wait">
       {slides.map((slide, index) => (
         <motion.div
           key={index}
           className="absolute inset-0 bg-cover bg-center flex items-center"
           style={{ backgroundImage: `url(${slide.image})` }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: index === currentSlide ? 1 : 0 }}
+          initial={{ opacity: 0, x: 300 }}
+          animate={{ opacity: index === currentSlide ? 1 : 0, x: index === currentSlide ? 0 : 300 }}
+          exit={{ opacity: 0, x: -300 }}
           transition={{ duration: 0.5 }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -74,6 +76,18 @@ const MainBanner = ({ onPlayNow, featuredSlot }) => {
           </div>
         </motion.div>
       ))}
+      </AnimatePresence>
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            className={`w-3 h-3 rounded-full ${
+              index === currentSlide ? 'bg-white' : 'bg-gray-400'
+            }`}
+            onClick={() => setCurrentSlide(index)}
+          />
+        ))}
+      </div>
     </section>
   );
 };

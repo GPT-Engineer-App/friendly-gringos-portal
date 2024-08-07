@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
 import JackpotSection from '../components/JackpotSection';
@@ -13,6 +13,8 @@ import LeaderboardSection from '../components/LeaderboardSection';
 import { supabase } from '@/integrations/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from "sonner";
+import { motion } from "framer-motion";
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -55,17 +57,24 @@ const Index = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-white">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col min-h-screen bg-gray-900 text-white"
+    >
       <Header />
       <main className="flex-grow">
-        <MainBanner onPlayNow={handlePlayNow} featuredSlot={featuredSlots[0]} />
-        <JackpotSection />
-        <SlotMachineSection onSelectSlot={setSelectedSlot} featuredSlots={featuredSlots} />
-        <TournamentSection />
-        <PromotionsSection />
-        <VIPSection />
-        <NewsSection />
-        <LeaderboardSection />
+        <Suspense fallback={<LoadingSpinner />}>
+          <MainBanner onPlayNow={handlePlayNow} featuredSlot={featuredSlots[0]} />
+          <JackpotSection />
+          <SlotMachineSection onSelectSlot={setSelectedSlot} featuredSlots={featuredSlots} />
+          <TournamentSection />
+          <PromotionsSection />
+          <VIPSection />
+          <NewsSection />
+          <LeaderboardSection />
+        </Suspense>
       </main>
       <Footer />
       {selectedSlot && (
@@ -74,7 +83,7 @@ const Index = () => {
           onClose={() => setSelectedSlot(null)}
         />
       )}
-    </div>
+    </motion.div>
   );
 };
 
