@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import SlotMachine from './SlotMachine';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -95,7 +94,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
                       <p className="text-gray-400 text-xs">{slot.provider}</p>
                       <div className="flex items-center mt-1">
                         <span className="text-yellow-400 text-xs mr-1">★</span>
-                        <span className="text-gray-300 text-xs">{slot.rating.toFixed(1)}</span>
+                        <span className="text-gray-300 text-xs">{slot.rating?.toFixed(1) || 'N/A'}</span>
                       </div>
                     </div>
                   </div>

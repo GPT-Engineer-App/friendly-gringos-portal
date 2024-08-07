@@ -60,6 +60,14 @@ const Index = () => {
     }
   };
 
+  const handleSelectSlot = (slot) => {
+    if (!user) {
+      toast.error("Please log in to play");
+      return;
+    }
+    setSelectedSlot(slot);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -82,7 +90,7 @@ const Index = () => {
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             </TabsList>
             <TabsContent value="slots">
-              <SlotMachineSection onSelectSlot={setSelectedSlot} featuredSlots={featuredSlots} />
+              <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots} />
             </TabsContent>
             <TabsContent value="tournaments">
               <TournamentSection />
