@@ -23,15 +23,21 @@ const SupabaseTest = () => {
         throw new Error('Supabase URL or API key is missing. Please check your environment variables.');
       }
 
+      console.log('Attempting to fetch a slot...');
       const { data, error } = await supabase.from('slots').select('name').limit(1);
-      
-      if (error) throw error;
-      
+    
+      if (error) {
+        console.error('Supabase query error:', error);
+        throw error;
+      }
+    
+      console.log('Supabase query result:', data);
+    
       if (data && data.length > 0) {
         setTestResult('Connection successful! Retrieved slot: ' + data[0].name);
         toast.success('Supabase connection test passed!');
       } else {
-        setTestResult('Connection successful, but no slots found.');
+        setTestResult('Connection successful, but no slots found. Check if the "slots" table exists and has data.');
         toast.warning('Supabase connected, but no data retrieved.');
       }
     } catch (error) {

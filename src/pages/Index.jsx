@@ -29,13 +29,18 @@ const Index = () => {
   const { data: featuredSlots, isLoading: featuredSlotsLoading, isError: featuredSlotsError, error: featuredSlotsErrorDetails, refetch: refetchFeaturedSlots } = useQuery({
     queryKey: ['featuredSlots'],
     queryFn: async () => {
+      console.log('Fetching featured slots...');
       const { data, error } = await supabase
         .from('slots')
         .select('*')
         .order('popularity', { ascending: false })
         .limit(5);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching featured slots:', error);
+        throw error;
+      }
+      console.log('Featured slots fetched successfully:', data);
       return data;
     },
     retry: 3,

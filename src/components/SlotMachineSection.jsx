@@ -19,12 +19,17 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const { data: slots, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['slots'],
     queryFn: async () => {
+      console.log('Fetching slots...');
       const { data, error } = await supabase
         .from('slots')
         .select('*')
         .order('popularity', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error fetching slots:', error);
+        throw error;
+      }
+      console.log('Slots fetched successfully:', data);
       return data;
     },
     retry: 3,

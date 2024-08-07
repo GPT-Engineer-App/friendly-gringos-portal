@@ -11,8 +11,11 @@ try {
     throw new Error('Supabase URL or API key is missing. Please check your environment variables.');
   }
   supabase = createClient(supabaseUrl, supabaseKey);
+  console.log('Supabase client initialized successfully');
 } catch (error) {
   console.error('Error initializing Supabase client:', error);
+  console.log('Supabase URL:', supabaseUrl);
+  console.log('Supabase Key:', supabaseKey ? 'Set' : 'Not set');
   supabase = null;
 }
 
