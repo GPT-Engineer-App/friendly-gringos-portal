@@ -12,17 +12,17 @@ const MainBanner = ({ onPlayNow, featuredSlot }) => {
     {
       title: "Welcome to Matrix Slots",
       subtitle: user ? `Welcome back, ${user.user_metadata?.name || user.email}!` : "Sign up now and get a welcome bonus!",
-      image: "/images/main-banner.jpg"
+      image: placeholderImages.mainBanner
     },
     {
       title: featuredSlot ? `Featured Game: ${featuredSlot.name}` : "Exciting Slots Await",
       subtitle: featuredSlot ? `Try our popular ${featuredSlot.theme} themed slot!` : "Discover a world of thrilling games!",
-      image: featuredSlot?.image || "/images/slots-banner.jpg"
+      image: featuredSlot?.image || placeholderImages.slotsBanner
     },
     {
       title: "New Games Added Weekly",
       subtitle: "Experience the latest in slot technology!",
-      image: "/images/new-games-banner.jpg"
+      image: placeholderImages.newGamesBanner
     }
   ];
 

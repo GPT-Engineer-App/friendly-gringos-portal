@@ -14,7 +14,7 @@ const VIPSection = () => {
   ];
 
   return (
-    <section id="vip" className="py-12 bg-gray-100" style={{backgroundImage: 'url("/images/vip-background.jpg")', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+    <section id="vip" className="py-12 bg-gray-100" style={{backgroundImage: `url(${placeholderImages.vipBackground})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
       <div className="container mx-auto relative z-10">
         <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
         <h2 className="text-3xl font-bold text-center mb-8">VIP Program</h2>

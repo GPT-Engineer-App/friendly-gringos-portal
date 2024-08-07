@@ -13,6 +13,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
 import SupabaseTest from '../components/SupabaseTest';
 
+// Placeholder images
+const placeholderImages = {
+  mainBanner: "/images/main-banner.jpg",
+  slotsBanner: "/images/slots-banner.jpg",
+  newGamesBanner: "/images/new-games-banner.jpg",
+  vipBackground: "/images/vip-background.jpg",
+  promotionsBanner: "/images/promotions-banner.jpg",
+};
+
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
 const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
 const VIPSection = lazy(() => import('../components/VIPSection'));
