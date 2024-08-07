@@ -34,21 +34,10 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
       if (error) {
         console.error('Supabase error:', error);
-        console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
 
-      console.log('Raw response:', data);
-
-      if (!data) {
-        console.error('No data returned from Supabase');
-        throw new Error('No data returned from the server');
-      }
-
-      console.log('Data type:', typeof data);
-      console.log('Data structure:', JSON.stringify(data, null, 2));
-
-      if (data.length === 0) {
+      if (!data || data.length === 0) {
         console.warn('No slots data available');
         setSlots([]);
         toast.warning('No slots available at the moment.');

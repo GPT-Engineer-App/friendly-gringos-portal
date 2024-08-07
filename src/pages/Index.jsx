@@ -38,22 +38,17 @@ const Index = () => {
         .limit(5);
 
       if (error) {
-        console.error('Supabase error:', error);
-        console.error('Error details:', error.message, error.details, error.hint);
         throw error;
       }
-
-      console.log('Raw featured slots response:', data);
 
       if (!data || data.length === 0) {
         console.warn('No featured slots data available');
         toast.warning('No featured slots available at the moment.');
         setFeaturedSlots([]);
-        return;
+      } else {
+        console.log('Fetched featured slots:', data);
+        setFeaturedSlots(data);
       }
-
-      console.log('Fetched featured slots:', data);
-      setFeaturedSlots(data);
     } catch (error) {
       console.error('Error fetching featured slots:', error);
       toast.error('Failed to load featured slots. Please try again later.');
