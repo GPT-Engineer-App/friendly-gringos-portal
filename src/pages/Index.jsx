@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
-import { toast } from "sonner";
 import SupabaseTest from '../components/SupabaseTest';
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
