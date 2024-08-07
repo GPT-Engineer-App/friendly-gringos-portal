@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
+import SupabaseTest from '../components/SupabaseTest';
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
 const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
@@ -146,6 +147,7 @@ const Index = () => {
       <Suspense fallback={null}>
         <LiveChatWidget />
       </Suspense>
+      <SupabaseTest />
       <Button
         className="fixed bottom-4 right-4 z-40"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
