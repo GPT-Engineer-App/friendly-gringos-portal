@@ -146,7 +146,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
         ))}
       </AnimatePresence>
     </div>
-  );
+  ));
 
   return (
     <section id="slots" className="py-12 bg-gray-900">
