@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -22,9 +22,9 @@ const Header = () => {
     if (user) {
       fetchBalance();
     }
-  }, [user]);
+  }, [user, fetchBalance]);
 
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     const { data, error } = await supabase
       .from('user_balance')
       .select('balance')

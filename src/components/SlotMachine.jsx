@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -49,7 +49,7 @@ const SlotMachine = ({ slot, onClose }) => {
     reset: true,
   });
 
-  const symbols = [
+  const symbols = useMemo(() => [
     { symbol: '🍒', value: 1, weight: 20 },
     { symbol: '🍋', value: 2, weight: 15 },
     { symbol: '🍊', value: 3, weight: 12 },
@@ -59,7 +59,7 @@ const SlotMachine = ({ slot, onClose }) => {
     { symbol: '7️⃣', value: 20, weight: 3 },
     { symbol: '🃏', value: 50, weight: 1 },
     { symbol: '🌟', value: 100, weight: 1 }, // Wild symbol
-  ];
+  ], []);
 
   const [freeSpins, setFreeSpins] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
@@ -206,7 +206,7 @@ const SlotMachine = ({ slot, onClose }) => {
     updateJackpot(jackpot + bet * 0.01);
     setCoinAnimation(true);
     coinSound.current.play();
-  }, [balance, bet, autoPlay, autoPlayCount, jackpot]);
+  }, [balance, bet, autoPlay, autoPlayCount, jackpot, weightedRandomSymbol, checkResult]);
 
   const playWinAnimation = (winAmount) => {
     setLastWin(winAmount);
@@ -219,7 +219,7 @@ const SlotMachine = ({ slot, onClose }) => {
     }
   }, [autoPlay, autoPlayCount, spinning, spin]);
 
-  const weightedRandomSymbol = () => {
+  const weightedRandomSymbol = useCallback(() => {
     const totalWeight = symbols.reduce((sum, symbol) => sum + symbol.weight, 0);
     let random = Math.random() * totalWeight;
     
@@ -230,9 +230,9 @@ const SlotMachine = ({ slot, onClose }) => {
       random -= symbols[i].weight;
     }
     return symbols.length - 1;
-  };
+  }, [symbols]);
 
-  const checkResult = () => {
+  const checkResult = useCallback(() => {
     const reelSymbols = reels.map(index => symbols[index]);
     let winAmount = 0;
     let newFreeSpins = freeSpins;

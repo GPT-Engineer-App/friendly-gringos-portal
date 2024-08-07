@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,7 +104,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
   const totalPages = Math.ceil(filteredSlots.length / slotsPerPage);
 
-  const renderSlotGrid = useCallback((slotList) => (
+  const renderSlotGrid = useMemo(() => (slotList) => (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <AnimatePresence>
         {slotList.map((slot) => (
