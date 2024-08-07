@@ -126,7 +126,9 @@ const SlotMachine = ({ slot, onClose }) => {
 
     if (error) {
       console.error('Error fetching balance:', error);
+      toast.error('Failed to fetch balance. Please try again.');
     } else {
+      console.log('Fetched balance:', data.balance);
       setBalance(data.balance);
     }
   };

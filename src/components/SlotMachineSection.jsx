@@ -49,6 +49,12 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     },
   });
 
+  useEffect(() => {
+    if (slots) {
+      console.log('Slots data in component:', slots);
+    }
+  }, [slots]);
+
   const generateAndStoreImage = async (slot) => {
     console.log('Generating image for slot:', slot.name);
     try {

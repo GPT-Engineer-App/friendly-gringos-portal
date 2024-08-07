@@ -33,7 +33,11 @@ const Index = () => {
       .order('popularity', { ascending: false })
       .limit(5);
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching featured slots:', error);
+      throw error;
+    }
+    console.log('Fetched featured slots:', data);
     return data;
   };
 
@@ -42,6 +46,10 @@ const Index = () => {
     queryFn: fetchFeaturedSlots,
     retry: 3,
     retryDelay: 1000,
+    onError: (error) => {
+      console.error('Query error:', error);
+      toast.error('Failed to load featured slots. Please try again.');
+    },
   });
 
   useEffect(() => {
