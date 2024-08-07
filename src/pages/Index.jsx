@@ -64,7 +64,7 @@ const Index = () => {
     if (featuredSlots && featuredSlots.length > 0) {
       setSelectedSlot(featuredSlots[0]);
     } else {
-      toast.error("No slots available at the moment");
+      toast.warning("No featured slots available. Try selecting a slot from the list below.");
     }
   };
 

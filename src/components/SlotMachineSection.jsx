@@ -18,36 +18,24 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
   const fetchSlots = useCallback(async () => {
     console.log('Fetching slots...');
-    try {
-      const { data, error } = await supabase
-        .from('slots')
-        .select('*')
-        .order('popularity', { ascending: false });
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .order('popularity', { ascending: false });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      console.log('Slots fetched:', data);
-
-      if (!data || data.length === 0) {
-        console.log('No slots available');
-        return [];
-      }
-
-      // Generate images for slots without an image
-      for (let slot of data) {
-        if (!slot.image) {
-          await generateAndStoreImage(slot);
-        }
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error in fetchSlots:', error);
+    if (error) {
+      console.error('Supabase error:', error);
       throw error;
     }
+
+    console.log('Slots fetched:', data);
+
+    if (!data || data.length === 0) {
+      console.log('No slots available');
+      return [];
+    }
+
+    return data;
   }, []);
 
   const { data: slots, isLoading, isError, error, refetch } = useQuery({
