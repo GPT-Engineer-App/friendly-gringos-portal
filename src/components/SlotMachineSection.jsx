@@ -30,11 +30,14 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     queryKey: ['slots'],
     queryFn: fetchSlots,
     retry: 3,
-    onError: (error) => {
+  });
+
+  useEffect(() => {
+    if (isError) {
       console.error('Error fetching slots:', error);
       toast.error('Failed to load slots. Please try again.');
-    },
-  });
+    }
+  }, [isError, error]);
 
   const filteredSlots = slots?.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,7 +128,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
               <div className="text-center text-white">Loading slots...</div>
             ) : isError ? (
               <div className="text-center text-white">
-                <p>{error.message}</p>
+                <p>Failed to load slots. Please try again.</p>
                 <Button onClick={() => refetch()} className="mt-4">
                   Retry
                 </Button>

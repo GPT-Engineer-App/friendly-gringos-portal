@@ -36,15 +36,18 @@ const Index = () => {
     return data;
   };
 
-  const { data: featuredSlots, isLoading, isError } = useQuery({
+  const { data: featuredSlots, isLoading, isError, error } = useQuery({
     queryKey: ['featuredSlots'],
     queryFn: fetchFeaturedSlots,
     retry: 3,
-    onError: (error) => {
+  });
+
+  useEffect(() => {
+    if (isError) {
       console.error('Error fetching featured slots:', error);
       toast.error('Failed to load featured slots. Please try again later.');
-    },
-  });
+    }
+  }, [isError, error]);
 
   const handlePlayNow = () => {
     if (!user) {
@@ -88,7 +91,16 @@ const Index = () => {
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             </TabsList>
             <TabsContent value="slots">
-              <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots || []} />
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : isError ? (
+                <div className="text-center py-8">
+                  <p className="text-red-500">Failed to load slots. Please try again later.</p>
+                  <Button onClick={() => refetch()} className="mt-4">Retry</Button>
+                </div>
+              ) : (
+                <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots || []} />
+              )}
             </TabsContent>
             <TabsContent value="tournaments">
               <TournamentSection />
