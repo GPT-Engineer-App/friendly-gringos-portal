@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
+import { toast } from "sonner";
 import SupabaseTest from '../components/SupabaseTest';
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
@@ -26,56 +27,36 @@ const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const { user } = useSupabaseAuth();
 
-  const [featuredSlots, setFeaturedSlots] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState(null);
+  const { data: featuredSlots, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['featuredSlots'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('slots')
+        .select('*')
+        .order('popularity', { ascending: false })
+        .limit(5);
 
-  useEffect(() => {
-    const fetchFeaturedSlots = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('slots')
-          .select('*')
-          .order('popularity', { ascending: false })
-          .limit(5);
-
-        if (error) throw error;
-
-        console.log('Fetched featured slots:', data);
-        setFeaturedSlots(data || []);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching featured slots:', error);
-        setIsError(true);
-        setError(error);
-        setIsLoading(false);
-        toast.error('Failed to load featured slots. Please try again.');
-      }
-    };
-
-    fetchFeaturedSlots();
-  }, []);
-
-  const refetch = () => {
-    setIsLoading(true);
-    setIsError(false);
-    setError(null);
-    fetchFeaturedSlots();
-  };
-
-  useEffect(() => {
-    if (isError) {
+      if (error) throw error;
+      return data;
+    },
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
       console.error('Error fetching featured slots:', error);
       toast.error('Failed to load featured slots. Please try again.');
-    }
-  }, [isError, error]);
+    },
+  });
 
   const handleRetryFeaturedSlots = () => {
     refetch();
     toast.info('Retrying to load featured slots...');
   };
+
+  useEffect(() => {
+    if (isError) {
+      console.error('Error fetching featured slots:', error);
+    }
+  }, [isError, error]);
 
   const handlePlayNow = () => {
     if (!user) {
@@ -126,8 +107,13 @@ const Index = () => {
                   <p className="text-red-500">Failed to load slots. Please try again.</p>
                   <Button onClick={handleRetryFeaturedSlots} className="mt-4">Retry</Button>
                 </div>
+              ) : featuredSlots && featuredSlots.length > 0 ? (
+                <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots} />
               ) : (
-                <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots || []} />
+                <div className="text-center py-8">
+                  <p>No featured slots available at the moment.</p>
+                  <Button onClick={handleRetryFeaturedSlots} className="mt-4">Refresh</Button>
+                </div>
               )}
             </TabsContent>
             <TabsContent value="tournaments">
