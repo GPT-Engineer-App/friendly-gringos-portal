@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
 import Footer from '../components/Footer';
