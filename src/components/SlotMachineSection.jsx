@@ -14,6 +14,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [slots, setSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('featured');
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 12;
@@ -24,6 +25,8 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
   const fetchSlots = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const { data, error } = await supabase
         .from('slots')
         .select('*')
@@ -36,10 +39,15 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
       setSlots(data || []);
     } catch (error) {
       console.error('Error fetching slots:', error);
-      toast.error('Failed to load slots. Please try again later.');
+      setError('Failed to load slots. Please try again.');
+      toast.error('Failed to load slots. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    fetchSlots();
   };
 
   const filteredSlots = useMemo(() => {
@@ -131,6 +139,13 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
             </div>
             {loading ? (
               <div className="text-center text-white">Loading slots...</div>
+            ) : error ? (
+              <div className="text-center text-white">
+                <p>{error}</p>
+                <Button onClick={handleRetry} className="mt-4">
+                  Retry
+                </Button>
+              </div>
             ) : (
               <>
                 {renderSlotGrid(paginatedSlots)}
