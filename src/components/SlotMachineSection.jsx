@@ -31,6 +31,11 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
       console.log('Slots fetched:', data);
 
+      if (!data || data.length === 0) {
+        console.log('No slots available');
+        return [];
+      }
+
       // Generate images for slots without an image
       for (let slot of data) {
         if (!slot.image) {
@@ -52,6 +57,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     retryDelay: 1000,
     onError: (error) => {
       console.error('Query error:', error);
+      toast.error('Failed to load slots. Please try again.');
     },
   });
 
@@ -201,6 +207,10 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
                 <Button onClick={handleRetrySlots} className="mt-4">
                   Retry
                 </Button>
+              </div>
+            ) : !slots || slots.length === 0 ? (
+              <div className="text-center text-white">
+                <p>No slots available at the moment. Please check back later.</p>
               </div>
             ) : filteredSlots.length === 0 ? (
               <div className="text-center text-white">
