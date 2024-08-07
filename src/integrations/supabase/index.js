@@ -4,11 +4,19 @@ import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider
 const supabaseUrl = import.meta.env.VITE_SUPABASE_PROJECT_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_API_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Supabase URL or API key is missing. Please check your environment variables.');
+let supabase;
+
+try {
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase URL or API key is missing. Please check your environment variables.');
+  }
+  supabase = createClient(supabaseUrl, supabaseKey);
+} catch (error) {
+  console.error('Error initializing Supabase client:', error);
+  supabase = null;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export { supabase };
 
 import React from "react";
 export const queryClient = new QueryClient();
