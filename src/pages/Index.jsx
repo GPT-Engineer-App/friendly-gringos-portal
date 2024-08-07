@@ -6,8 +6,9 @@ import SlotMachine from '../components/SlotMachine';
 import { supabase } from '@/integrations/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from '../components/LoadingSpinner';
+import { Button } from "@/components/ui/button";
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
 const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
@@ -79,15 +80,31 @@ const Index = () => {
         </Suspense>
       </main>
       <Footer />
-      {selectedSlot && (
-        <SlotMachine
-          slot={selectedSlot}
-          onClose={() => setSelectedSlot(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedSlot && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          >
+            <SlotMachine
+              slot={selectedSlot}
+              onClose={() => setSelectedSlot(null)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <Suspense fallback={null}>
         <LiveChatWidget />
       </Suspense>
+      <Button
+        className="fixed bottom-4 right-4 z-40"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        ↑ Top
+      </Button>
     </motion.div>
   );
 };

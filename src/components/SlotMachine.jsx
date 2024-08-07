@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
@@ -13,6 +13,8 @@ import { Howl } from 'howler';
 import confetti from 'canvas-confetti';
 import { useSpring, animated } from 'react-spring';
 import MiniGame from './MiniGame';
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SlotMachine = ({ slot, onClose }) => {
   const [theme, setTheme] = useState('default');
@@ -309,7 +311,7 @@ const SlotMachine = ({ slot, onClose }) => {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className={`sm:max-w-[600px] ${currentTheme.background} ${currentTheme.text}`}>
+      <DialogContent className={`sm:max-w-[800px] ${currentTheme.background} ${currentTheme.text}`}>
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center justify-between">
             {slot.name}
@@ -326,8 +328,17 @@ const SlotMachine = ({ slot, onClose }) => {
               </Tooltip>
             </TooltipProvider>
           </DialogTitle>
+          <DialogDescription>
+            Experience the thrill of {slot.theme} themed slots!
+          </DialogDescription>
         </DialogHeader>
-        <div className="mt-4">
+        <Tabs defaultValue="game" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="game">Game</TabsTrigger>
+            <TabsTrigger value="info">Info</TabsTrigger>
+            <TabsTrigger value="stats">Stats</TabsTrigger>
+          </TabsList>
+          <TabsContent value="game">
           <div className="mb-4">
             <label htmlFor="theme-select" className="block mb-2">Select Theme:</label>
             <select
@@ -419,7 +430,43 @@ const SlotMachine = ({ slot, onClose }) => {
           </div>
           {autoPlay && <p className="text-center text-sm mt-2">Auto spins remaining: {autoPlayCount}</p>}
           {result && <p className="text-center font-bold mt-4 text-xl">{result}</p>}
-        </div>
+          </TabsContent>
+          <TabsContent value="info">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-2">Game Information</h3>
+                <p><strong>Theme:</strong> {slot.theme}</p>
+                <p><strong>Volatility:</strong> {slot.volatility}</p>
+                <p><strong>Min Bet:</strong> ${slot.min_bet}</p>
+                <p><strong>Max Bet:</strong> ${slot.max_bet}</p>
+                <p><strong>Paylines:</strong> {slot.paylines}</p>
+                <h4 className="text-md font-semibold mt-4 mb-2">Special Features:</h4>
+                <ul className="list-disc pl-5">
+                  <li>Wild Symbols</li>
+                  <li>Scatter Symbols</li>
+                  <li>Free Spins</li>
+                  <li>Bonus Games</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="stats">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-2">Your Statistics</h3>
+                <p><strong>Total Spins:</strong> {gameHistory.length}</p>
+                <p><strong>Biggest Win:</strong> {Math.max(...gameHistory.map(game => game.win_amount))} coins</p>
+                <p><strong>Win Rate:</strong> {(gameHistory.filter(game => game.win_amount > 0).length / gameHistory.length * 100).toFixed(2)}%</p>
+                <h4 className="text-md font-semibold mt-4 mb-2">Recent Wins:</h4>
+                <ul className="list-disc pl-5">
+                  {gameHistory.filter(game => game.win_amount > 0).slice(0, 5).map((game, index) => (
+                    <li key={index}>{game.win_amount} coins on {new Date(game.played_at).toLocaleDateString()}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
         {bonusGame && (
           <div className="mt-4 p-4 bg-yellow-100 rounded-lg">
             <h3 className="text-xl font-bold mb-2">Bonus Game!</h3>
