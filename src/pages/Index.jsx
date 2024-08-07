@@ -26,7 +26,7 @@ const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const { user } = useSupabaseAuth();
 
-  const { data: featuredSlots, isLoading, isError, error, refetch } = useQuery({
+  const { data: featuredSlots, isLoading: featuredSlotsLoading, isError: featuredSlotsError, error: featuredSlotsErrorDetails, refetch: refetchFeaturedSlots } = useQuery({
     queryKey: ['featuredSlots'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,15 +47,15 @@ const Index = () => {
   });
 
   const handleRetryFeaturedSlots = () => {
-    refetch();
+    refetchFeaturedSlots();
     toast.info('Retrying to load featured slots...');
   };
 
   useEffect(() => {
-    if (isError) {
-      console.error('Error fetching featured slots:', error);
+    if (featuredSlotsError) {
+      console.error('Error fetching featured slots:', featuredSlotsErrorDetails);
     }
-  }, [isError, error]);
+  }, [featuredSlotsError, featuredSlotsErrorDetails]);
 
   const handlePlayNow = () => {
     if (!user) {
@@ -99,11 +99,11 @@ const Index = () => {
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             </TabsList>
             <TabsContent value="slots">
-              {isLoading ? (
+              {featuredSlotsLoading ? (
                 <LoadingSpinner />
-              ) : isError ? (
+              ) : featuredSlotsError ? (
                 <div className="text-center py-8">
-                  <p className="text-red-500">Failed to load slots. Please try again.</p>
+                  <p className="text-red-500">Failed to load featured slots. Please try again.</p>
                   <Button onClick={handleRetryFeaturedSlots} className="mt-4">Retry</Button>
                 </div>
               ) : featuredSlots && featuredSlots.length > 0 ? (

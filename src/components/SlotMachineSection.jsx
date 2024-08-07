@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,49 +16,29 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 12;
 
-  const [slots, setSlots] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-  const [error, setError] = useState(null);
+  const { data: slots, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['slots'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('slots')
+        .select('*')
+        .order('popularity', { ascending: false });
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('slots')
-          .select('*')
-          .order('popularity', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
+      console.error('Error fetching slots:', error);
+      toast.error('Failed to load slots. Please try again.');
+    },
+  });
 
-        if (error) throw error;
-
-        console.log('Slots fetched:', data);
-        setSlots(data || []);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching slots:', error);
-        setIsError(true);
-        setError(error);
-        setIsLoading(false);
-        toast.error('Failed to load slots. Please try again.');
-      }
-    };
-
-    fetchSlots();
-  }, []);
-
-  const refetch = () => {
-    setIsLoading(true);
-    setIsError(false);
-    setError(null);
-    fetchSlots();
+  const handleRetrySlots = () => {
+    refetch();
+    toast.info('Retrying to load slots...');
   };
-
-  useEffect(() => {
-    if (slots) {
-      console.log('Slots data in component:', slots);
-    }
-  }, [slots]);
 
   const generateAndStoreImage = async (slot) => {
     console.log('Generating image for slot:', slot.name);
@@ -106,12 +86,6 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     }
   }, [isError, error]);
 
-  const handleRetrySlots = () => {
-    console.log('Retrying slot fetch...');
-    refetch();
-    toast.info('Retrying to load slots...');
-  };
-
   const filteredSlots = slots?.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     slot.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,7 +99,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
 
   const totalPages = Math.ceil(filteredSlots.length / slotsPerPage);
 
-  const renderSlotGrid = (slotList) => (
+  const renderSlotGrid = useCallback((slotList) => (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <AnimatePresence>
         {slotList.map((slot) => (
