@@ -30,6 +30,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     queryKey: ['slots'],
     queryFn: fetchSlots,
     retry: 3,
+    retryDelay: 1000,
   });
 
   useEffect(() => {
@@ -38,6 +39,11 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
       toast.error('Failed to load slots. Please try again.');
     }
   }, [isError, error]);
+
+  const handleRetrySlots = () => {
+    refetch();
+    toast.info('Retrying to load slots...');
+  };
 
   const filteredSlots = slots?.filter(slot =>
     slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -129,7 +135,7 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
             ) : isError ? (
               <div className="text-center text-white">
                 <p>Failed to load slots. Please try again.</p>
-                <Button onClick={() => refetch()} className="mt-4">
+                <Button onClick={handleRetrySlots} className="mt-4">
                   Retry
                 </Button>
               </div>
