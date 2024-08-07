@@ -36,7 +36,7 @@ const Header = () => {
     } else {
       setBalance(data.balance);
     }
-  };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
