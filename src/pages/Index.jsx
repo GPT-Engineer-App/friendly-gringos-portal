@@ -1,15 +1,16 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import Header from '../components/Header';
 import MainBanner from '../components/MainBanner';
 import Footer from '../components/Footer';
 import SlotMachine from '../components/SlotMachine';
-import { supabase } from '@/integrations/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase';
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));
 const SlotMachineSection = lazy(() => import('../components/SlotMachineSection'));
@@ -22,46 +23,35 @@ const LiveChatWidget = lazy(() => import('../components/LiveChatWidget'));
 
 const Index = () => {
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [featuredSlots, setFeaturedSlots] = useState([]);
   const { user } = useSupabaseAuth();
 
-  useEffect(() => {
-    fetchFeaturedSlots();
-  }, []);
-
   const fetchFeaturedSlots = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('slots')
-        .select('*')
-        .order('popularity', { ascending: false })
-        .limit(5);
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .order('popularity', { ascending: false })
+      .limit(5);
 
-      if (error) {
-        throw error;
-      }
+    if (error) throw error;
+    return data;
+  };
 
-      if (!data || data.length === 0) {
-        console.warn('No featured slots data available');
-        toast.warning('No featured slots available at the moment.');
-        setFeaturedSlots([]);
-      } else {
-        console.log('Fetched featured slots:', data);
-        setFeaturedSlots(data);
-      }
-    } catch (error) {
+  const { data: featuredSlots, isLoading, isError } = useQuery({
+    queryKey: ['featuredSlots'],
+    queryFn: fetchFeaturedSlots,
+    retry: 3,
+    onError: (error) => {
       console.error('Error fetching featured slots:', error);
       toast.error('Failed to load featured slots. Please try again later.');
-      setFeaturedSlots([]);
-    }
-  };
+    },
+  });
 
   const handlePlayNow = () => {
     if (!user) {
       toast.error("Please log in to play");
       return;
     }
-    if (featuredSlots.length > 0) {
+    if (featuredSlots && featuredSlots.length > 0) {
       setSelectedSlot(featuredSlots[0]);
     } else {
       toast.error("No slots available at the moment");
@@ -86,7 +76,7 @@ const Index = () => {
       <Header />
       <main className="flex-grow">
         <Suspense fallback={<LoadingSpinner />}>
-          <MainBanner onPlayNow={handlePlayNow} featuredSlot={featuredSlots[0]} />
+          <MainBanner onPlayNow={handlePlayNow} featuredSlot={featuredSlots && featuredSlots[0]} />
           <JackpotSection />
           <Tabs defaultValue="slots" className="w-full mt-8">
             <TabsList className="w-full justify-center">
@@ -98,7 +88,7 @@ const Index = () => {
               <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
             </TabsList>
             <TabsContent value="slots">
-              <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots} />
+              <SlotMachineSection onSelectSlot={handleSelectSlot} featuredSlots={featuredSlots || []} />
             </TabsContent>
             <TabsContent value="tournaments">
               <TournamentSection />

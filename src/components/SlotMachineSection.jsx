@@ -1,79 +1,51 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [slots, setSlots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('featured');
   const [currentPage, setCurrentPage] = useState(1);
   const slotsPerPage = 12;
 
-  useEffect(() => {
-    fetchSlots();
-  }, []);
-
   const fetchSlots = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      console.log('Fetching slots...');
-      const { data, error } = await supabase
-        .from('slots')
-        .select('*')
-        .order('popularity', { ascending: false });
+    const { data, error } = await supabase
+      .from('slots')
+      .select('*')
+      .order('popularity', { ascending: false });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
+    if (error) throw error;
+    return data;
+  };
 
-      if (!data || data.length === 0) {
-        console.warn('No slots data available');
-        setSlots([]);
-        toast.warning('No slots available at the moment.');
-      } else {
-        console.log('Fetched slots:', data);
-        setSlots(data);
-      }
-    } catch (error) {
+  const { data: slots, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['slots'],
+    queryFn: fetchSlots,
+    retry: 3,
+    onError: (error) => {
       console.error('Error fetching slots:', error);
-      setError('Failed to load slots. Please try again.');
       toast.error('Failed to load slots. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+  });
 
-  useEffect(() => {
-    fetchSlots();
-  }, []);
+  const filteredSlots = slots?.filter(slot =>
+    slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    slot.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    slot.theme.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
-  const handleRetry = () => {
-    fetchSlots();
-  };
-
-  const filteredSlots = useMemo(() => {
-    return slots.filter(slot =>
-      slot.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      slot.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      slot.theme.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [slots, searchTerm]);
-
-  const paginatedSlots = useMemo(() => {
-    const startIndex = (currentPage - 1) * slotsPerPage;
-    return filteredSlots.slice(startIndex, startIndex + slotsPerPage);
-  }, [filteredSlots, currentPage]);
+  const paginatedSlots = filteredSlots.slice(
+    (currentPage - 1) * slotsPerPage,
+    currentPage * slotsPerPage
+  );
 
   const totalPages = Math.ceil(filteredSlots.length / slotsPerPage);
 
@@ -149,21 +121,18 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
-            {loading ? (
+            {isLoading ? (
               <div className="text-center text-white">Loading slots...</div>
-            ) : error ? (
+            ) : isError ? (
               <div className="text-center text-white">
-                <p>{error}</p>
-                <Button onClick={handleRetry} className="mt-4">
+                <p>{error.message}</p>
+                <Button onClick={() => refetch()} className="mt-4">
                   Retry
                 </Button>
               </div>
-            ) : slots.length === 0 ? (
+            ) : filteredSlots.length === 0 ? (
               <div className="text-center text-white">
-                <p>No slots available at the moment.</p>
-                <Button onClick={handleRetry} className="mt-4">
-                  Refresh
-                </Button>
+                <p>No slots available matching your search.</p>
               </div>
             ) : (
               <>
