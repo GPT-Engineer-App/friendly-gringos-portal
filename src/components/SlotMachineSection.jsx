@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { generateImage } from '@/lib/pico';
 
 const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,36 +53,22 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
   const generateAndStoreImage = async (slot) => {
     console.log('Generating image for slot:', slot.name);
     try {
-      const response = await fetch("https://gptengineer.com/api/image-generation", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ prompt: `A slot machine themed ${slot.theme}` })
-      });
+      const imageUrl = await generateImage(`A slot machine themed ${slot.theme}`);
 
-      const data = await response.json();
+      // Store in database
+      const { error } = await supabase
+        .from('slots')
+        .update({ image: imageUrl })
+        .eq('id', slot.id);
 
-      if (data.status === 'success') {
-        const imageUrl = data.imageUrl;
-
-        // Store in database
-        const { error } = await supabase
-          .from('slots')
-          .update({ image: imageUrl })
-          .eq('id', slot.id);
-
-        if (error) {
-          console.error('Error updating slot image:', error);
-          throw error;
-        }
-
-        console.log(`Generated image for ${slot.name}`);
-        toast.success(`Generated image for ${slot.name}`);
-      } else {
-        console.error('Error generating image:', data);
-        toast.error(`Failed to generate image for ${slot.name}`);
+      if (error) {
+        console.error('Error updating slot image:', error);
+        throw error;
       }
+
+      console.log(`Generated image for ${slot.name}`);
+      toast.success(`Generated image for ${slot.name}`);
+      return imageUrl;
     } catch (error) {
       console.error('Error in image generation process:', error);
       toast.error(`Error in image generation process for ${slot.name}`);
