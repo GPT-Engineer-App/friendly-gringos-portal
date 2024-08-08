@@ -13,7 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
 
 // Placeholder images
-const placeholderImages = {
+export const placeholderImages = {
   mainBanner: "https://placehold.co/1200x400/333/FFF?text=Welcome+to+Matrix+Slots",
   slotsBanner: "https://placehold.co/1200x400/444/FFF?text=Exciting+Slots+Await",
   newGamesBanner: "https://placehold.co/1200x400/555/FFF?text=New+Games+Added+Weekly",

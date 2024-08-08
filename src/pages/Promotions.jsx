@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PromotionsSection from '../components/PromotionsSection';
+import { placeholderImages } from './Index';
 
 const Promotions = () => {
   return (

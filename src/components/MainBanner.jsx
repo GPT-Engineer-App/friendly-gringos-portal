@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { placeholderImages } from '../pages/Index';
 
 const MainBanner = ({ onPlayNow, featuredSlot, isLoading }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
