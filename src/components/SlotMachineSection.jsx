@@ -1,11 +1,11 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase';
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,30 +50,40 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
     toast.info('Retrying to load slots...');
   };
 
-  const generateAndStoreImage = async (slot) => {
-    console.log('Generating image for slot:', slot.name);
-    try {
-      const imageUrl = await generateImage(`A slot machine themed ${slot.theme}`);
+  const queryClient = useQueryClient();
 
-      // Store in database
-      const { error } = await supabase
+  const generateAndStoreImageMutation = useMutation({
+    mutationFn: async (slot) => {
+      console.log('Generating image for slot:', slot.name);
+      const imageUrl = await generateImage(`A slot machine themed ${slot.theme}`);
+      const { data, error } = await supabase
         .from('slots')
         .update({ image: imageUrl })
         .eq('id', slot.id);
-
-      if (error) {
-        console.error('Error updating slot image:', error);
-        throw error;
-      }
-
-      console.log(`Generated image for ${slot.name}`);
-      toast.success(`Generated image for ${slot.name}`);
-      return imageUrl;
-    } catch (error) {
+      if (error) throw error;
+      return { ...slot, image: imageUrl };
+    },
+    onSuccess: (updatedSlot) => {
+      queryClient.setQueryData(['slots'], (oldData) => {
+        return oldData.map(slot => slot.id === updatedSlot.id ? updatedSlot : slot);
+      });
+      toast.success(`Generated image for ${updatedSlot.name}`);
+    },
+    onError: (error, slot) => {
       console.error('Error in image generation process:', error);
-      toast.error(`Error in image generation process for ${slot.name}`);
+      toast.error(`Error generating image for ${slot.name}`);
     }
-  };
+  });
+
+  useEffect(() => {
+    if (slots) {
+      slots.forEach(slot => {
+        if (!slot.image) {
+          generateAndStoreImageMutation.mutate(slot);
+        }
+      });
+    }
+  }, [slots]);
 
   useEffect(() => {
     if (isError) {
@@ -114,7 +124,13 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
                     onClick={() => onSelectSlot(slot)}
                   >
                     <div className="relative">
-                      <img src={slot.image} alt={slot.name} className="w-full h-40 object-cover" />
+                      {slot.image ? (
+                        <img src={slot.image} alt={slot.name} className="w-full h-40 object-cover" />
+                      ) : (
+                        <div className="w-full h-40 bg-gray-700 flex items-center justify-center">
+                          <span className="text-gray-400">Generating image...</span>
+                        </div>
+                      )}
                       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <Button className="bg-green-500 hover:bg-green-600 text-white" onClick={(e) => { e.stopPropagation(); onSelectSlot(slot); }}>Play Now</Button>
                       </div>
