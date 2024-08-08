@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const MainBanner = ({ onPlayNow, featuredSlot }) => {
+const MainBanner = ({ onPlayNow, featuredSlot, isLoading }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { user } = useSupabaseAuth();
   
@@ -15,9 +15,9 @@ const MainBanner = ({ onPlayNow, featuredSlot }) => {
       image: placeholderImages.mainBanner
     },
     {
-      title: featuredSlot ? `Featured Game: ${featuredSlot.name}` : "Exciting Slots Await",
-      subtitle: featuredSlot ? `Try our popular ${featuredSlot.theme} themed slot!` : "Discover a world of thrilling games!",
-      image: featuredSlot?.image || placeholderImages.slotsBanner
+      title: isLoading ? "Loading..." : (featuredSlot ? `Featured Game: ${featuredSlot.name}` : "Exciting Slots Await"),
+      subtitle: isLoading ? "Please wait..." : (featuredSlot ? `Try our popular ${featuredSlot.theme} themed slot!` : "Discover a world of thrilling games!"),
+      image: isLoading ? placeholderImages.slotsBanner : (featuredSlot?.image || placeholderImages.slotsBanner)
     },
     {
       title: "New Games Added Weekly",

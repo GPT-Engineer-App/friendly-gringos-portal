@@ -29,14 +29,18 @@ const SlotMachineSection = ({ onSelectSlot, featuredSlots }) => {
         console.error('Supabase error fetching slots:', error);
         throw error;
       }
-      console.log('Slots fetched successfully:', data);
+      if (!data || data.length === 0) {
+        console.warn('No slots data returned from Supabase');
+      } else {
+        console.log(`Fetched ${data.length} slots successfully`);
+      }
       return data;
     },
     retry: 3,
     retryDelay: 1000,
     onError: (error) => {
       console.error('Error fetching slots:', error);
-      toast.error('Failed to load slots. Please try again.');
+      toast.error(`Failed to load slots: ${error.message}`);
     },
   });
 

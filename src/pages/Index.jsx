@@ -48,14 +48,18 @@ const Index = () => {
         console.error('Supabase error fetching featured slots:', error);
         throw error;
       }
-      console.log('Featured slots fetched successfully:', data);
+      if (!data || data.length === 0) {
+        console.warn('No featured slots data returned from Supabase');
+      } else {
+        console.log(`Fetched ${data.length} featured slots successfully`);
+      }
       return data;
     },
     retry: 3,
     retryDelay: 1000,
     onError: (error) => {
       console.error('Error fetching featured slots:', error);
-      toast.error('Failed to load featured slots. Please try again.');
+      toast.error(`Failed to load featured slots: ${error.message}`);
     },
   });
 

@@ -12,6 +12,15 @@ try {
   }
   supabase = createClient(supabaseUrl, supabaseKey);
   console.log('Supabase client initialized successfully');
+  
+  // Test the connection
+  supabase.from('slots').select('id').limit(1).then(({ data, error }) => {
+    if (error) {
+      console.error('Error testing Supabase connection:', error);
+    } else {
+      console.log('Supabase connection test successful');
+    }
+  });
 } catch (error) {
   console.error('Error initializing Supabase client:', error);
   console.log('Supabase URL:', supabaseUrl);
