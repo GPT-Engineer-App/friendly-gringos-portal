@@ -14,11 +14,11 @@ import { supabase } from '@/integrations/supabase';
 
 // Placeholder images
 const placeholderImages = {
-  mainBanner: "/images/main-banner.jpg",
-  slotsBanner: "/images/slots-banner.jpg",
-  newGamesBanner: "/images/new-games-banner.jpg",
-  vipBackground: "/images/vip-background.jpg",
-  promotionsBanner: "/images/promotions-banner.jpg",
+  mainBanner: "https://placehold.co/1200x400/333/FFF?text=Welcome+to+Matrix+Slots",
+  slotsBanner: "https://placehold.co/1200x400/444/FFF?text=Exciting+Slots+Await",
+  newGamesBanner: "https://placehold.co/1200x400/555/FFF?text=New+Games+Added+Weekly",
+  vipBackground: "https://placehold.co/1200x600/666/FFF?text=VIP+Program",
+  promotionsBanner: "https://placehold.co/1200x400/777/FFF?text=Our+Promotions",
 };
 
 const JackpotSection = lazy(() => import('../components/JackpotSection'));

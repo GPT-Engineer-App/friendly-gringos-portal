@@ -17,7 +17,7 @@ const VIPSection = () => {
     <section id="vip" className="py-12 bg-gray-100" style={{backgroundImage: `url(${placeholderImages.vipBackground})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
       <div className="container mx-auto relative z-10">
         <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
-        <h2 className="text-3xl font-bold text-center mb-8">VIP Program</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 text-white">VIP Program</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {vipLevels.map((level, index) => (
             <Card key={index} className="flex flex-col">
